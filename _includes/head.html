@@ -14,3 +14,15 @@
 
 <!-- For all browsers -->
 <link rel="stylesheet" href="{{ base_path }}/assets/css/main.css">
+
+<!-- 配置 MathJax 支持 LaTeX 公式 -->
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],  // 行内公式用 $公式$ 或 \(公式\)
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],  // 块级公式用 $$公式$$ 或 \[公式\]
+      processEscapes: true  // 支持转义符 \$
+    }
+  };
+</script>
