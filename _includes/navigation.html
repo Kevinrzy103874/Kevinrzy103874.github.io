@@ -1,22 +1,24 @@
 <nav class="nav__list">
-  <!-- 顶部导航栏（main 分组） -->
+  <!-- 顶部导航（main 分组） -->
   {% for item in site.data.navigation.main %}
     <li class="nav__item">
       <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
     </li>
   {% endfor %}
 
-  <!-- 右侧三横菜单（mobile 分组） -->
-  <li class="nav__item nav__item--dropdown">
-    <a href="#" class="nav__link nav__link--dropdown">
-      <i class="fa fa-bars"></i>
-    </a>
-    <ul class="nav__submenu">
-      {% for item in site.data.navigation.mobile %}
-        <li class="nav__submenu-item">
-          <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
-        </li>
-      {% endfor %}
-    </ul>
-  </li>
+  <!-- 三横菜单（mobile 分组） -->
+  {% if site.data.navigation.mobile %}
+    <li class="nav__item nav__item--dropdown">
+      <a href="#" class="nav__link nav__link--dropdown">
+        <i class="fa fa-bars"></i>
+      </a>
+      <ul class="nav__submenu">
+        {% for item in site.data.navigation.mobile %}
+          <li class="nav__submenu-item">
+            <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% endif %}
 </nav>
