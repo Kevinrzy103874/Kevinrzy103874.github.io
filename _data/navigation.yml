@@ -6,64 +6,63 @@ main:
     url: /year-archive/
   
   - title: "信息学奥赛"
-    url: /categories/信息学奥赛/
+    url: /信息学奥赛/
 
   - title: "任我行信息学奥赛一本通"
-    url: /categories/任我行信息学奥赛一本通/
+    url: /任我行信息学奥赛一本通/
 
   - title: "模拟赛"
-    url: /categories/模拟赛/
-    children:
-      - title: "模拟赛题目"
-        url: /categories/模拟赛题目/
-      - title: "模拟赛题解"
-        url: /categories/模拟赛题解/
-      - title: "模拟赛做题记录"
-        url: /categories/模拟赛做题记录/
+    url: /模拟赛/
+    
+  - title: "模拟赛题目"
+    url: /模拟赛题目/
+  
+  - title: "模拟赛题解"
+    url: /模拟赛题解/
+  
+  - title: "模拟赛做题记录"
+    url: /模拟赛做题记录/
 
   - title: "比赛"
-    url: /categories/比赛/
-    children:
-      - title: "比赛题目"
-        url: /categories/比赛题目/
-      - title: "比赛题解"
-        url: /categories/比赛题解/
-      - title: "比赛做题记录"
-        url: /categories/比赛做题记录/
+    url: /比赛/
+    
+  - title: "比赛题目"
+    url: /比赛题目/
+  
+  - title: "比赛题解"
+    url: /比赛题解/
+  
+  - title: "比赛做题记录"
+    url: /比赛做题记录/
 
   - title: "学习笔记"
-    url: /categories/学习笔记/
-    children:
-      - title: "算法"
-        url: /categories/算法/
-      - title: "CSP"
-        url: /categories/CSP/
-      - title: "C++"
-        url: /categories/c++/
+    url: /学习笔记/
+  
+  - title: "算法"
+    url: /算法/
+    
+  - title: "CSP"
+    url: /CSP/
+        
+  - title: "C++"
+    url: /c++/
 
-  - title: "OJ 刷题"
-    url: /categories/oj/
-    children:
-      - title: "Atcoder"
-        url: /categories/atcoder/
-      - title: "LeetCode"
-        url: /categories/leetcode/
-      - title: "Nowcoder"
-        url: /categories/nowcoder/
-      - title: "luogu"
-        url: /categories/luogu/
-
+  - title: "OJ"
+    url: /oj/
+  
+  - title: "Atcoder"
+    url: /atcoder/
+  - title: "LeetCode"
+    url: /leetcode/
+  - title: "Nowcoder"
+    url: /Nowcoder/
+  - title: "luogu"
+    url: /luogu/
   - title: "题解"
-    url: /categories/题解/
+    url: /题解/
 
   - title: "原创题目"
-    url: /categories/原创题目/
+    url: /原创题目/
 
   - title: "个人简介"
-    url: /about/
-
-  - title: "博客文章"
-    url: /year-archive/
-
-  - title: "简历"
-    url: /cv/
+    url: /个人简介/
