@@ -1,33 +1,66 @@
-# The following is the order of the links in the header of the website.
-#
-# Changing the order here will adjust the order and you can also add additional
-# links. Removing a link prevents it from showing in the header, but does not
-# prevent it from being included in the site.
-#
-# NOTE that only one of the CV options should be selected, the first is for the
-#      Markdown formatted page while the second is generated using JSON.
-
 main:
-  - title: "Publications"
-    url: /publications/
+  - title: "首页"
+    url: /
 
-  - title: "Talks"
-    url: /talks/    
+  - title: "信息学奥赛"
+    url: /categories/信息学奥赛/
 
-  - title: "Teaching"
-    url: /teaching/    
-    
-  - title: "Portfolio"
-    url: /portfolio/
-        
-  - title: "Blog Posts"
+  - title: "任我行信息学奥赛一本通"
+    url: /categories/任我行信息学奥赛一本通/
+
+  - title: "模拟赛"
+    url: /categories/模拟赛/
+    children:
+      - title: "模拟赛题目"
+        url: /categories/模拟赛题目/
+      - title: "模拟赛题解"
+        url: /categories/模拟赛题解/
+      - title: "模拟赛做题记录"
+        url: /categories/模拟赛做题记录/
+
+  - title: "比赛"
+    url: /categories/比赛/
+    children:
+      - title: "比赛题目"
+        url: /categories/比赛题目/
+      - title: "比赛题解"
+        url: /categories/比赛题解/
+      - title: "比赛做题记录"
+        url: /categories/比赛做题记录/
+
+  - title: "学习笔记"
+    url: /categories/学习笔记/
+    children:
+      - title: "算法"
+        url: /categories/算法/
+      - title: "CSP"
+        url: /categories/CSP/
+      - title: "C++"
+        url: /categories/c++/
+
+  - title: "OJ 刷题"
+    url: /categories/oj/
+    children:
+      - title: "Atcoder"
+        url: /categories/atcoder/
+      - title: "LeetCode"
+        url: /categories/leetcode/
+      - title: "Nowcoder"
+        url: /categories/nowcoder/
+      - title: "luogu"
+        url: /categories/luogu/
+
+  - title: "题解"
+    url: /categories/题解/
+
+  - title: "原创题目"
+    url: /categories/原创题目/
+
+  - title: "个人简介"
+    url: /about/
+
+  - title: "博客文章"
     url: /year-archive/
-    
-  - title: "CV"
+
+  - title: "简历"
     url: /cv/
-    
-  # - title: "CV"
-  #   url: /cv-json/
-    
-  - title: "Guide"
-    url: /markdown/
