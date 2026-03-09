@@ -38,19 +38,15 @@ main:
     url: /比赛做题记录/
   - title: "算法"
     url: /算法/
-  - title: "CSP"
-    url: /CSP/
+  - title: "竞赛"
+    url: /竞赛/
   - title: "C++"
     url: /c++/
   - title: "题解"
     url: /题解/
   - title: "原创题目"
     url: /原创题目/
-  - title: "个人简介"
-    url: /个人简介/
   - title: "其他"
     url: /其他/
-  - title: "友情链接"
-    url: /友情链接/
-  - title: "任我行信息学与CMOI"
-    url: /任我行信息学与CMOI/
+  - title: "任我行信息学"
+    url: /任我行信息学/
