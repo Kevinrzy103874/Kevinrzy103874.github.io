@@ -1,0 +1,14 @@
+/* assets/css/custom.css */
+.custom-highlight {
+  background-color: #ffeb3b;  /* 亮黄色 */
+  color: #000000;              /* 黑色文字 */
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+/* 鼠标悬停效果 */
+.custom-highlight:hover {
+  background-color: #fdd835;  /* 稍深的黄色 */
+}
