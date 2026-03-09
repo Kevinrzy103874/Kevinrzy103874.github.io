@@ -46,4 +46,4 @@ redirect_from:
 
 > # 邮箱（Gmail）：[rensirui689@gmail.com](mailto:rensirui689@gmail.com)
 
-> # ==各大OJ账号：Kevinrzy103874
+> # 各大OJ账号：Kevinrzy103874
