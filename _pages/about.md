@@ -11,14 +11,16 @@ redirect_from:
 
 这是我的个人博客，分享我的技术经验和学习心得。希望在这里能够与大家交流和成长。
 
+同时也专注于分享信息学竞赛技巧、知识点、模拟赛及一些题目题解，又有着当码农的乐趣，有时还会写写比赛游记等等。
+
 ## 关于我
 
 本人是一个编程蒟蒻
 ---
 
-年龄Age：12
+年龄Age：13
 
-班级Class：六32班
+班级Class：七19班
 
 学校School：三鑫学校
 
@@ -38,11 +40,10 @@ redirect_from:
 ![](https://api.xecades.xyz/api?img=1&quote=%E4%BD%A0%E4%BB%8A%E5%A4%A9AC%E4%BA%86%E5%90%97&date=2028-09-01&str=%E6%88%91%E9%AB%98%E4%B8%80%E5%BC%80%E5%AD%A6&github=Kevin13590732645&luogu=Kevinrzy103874&wechat=13590732645&codeforces=Kevinrzy103874&email=13590732645%40163.com&libreoj=Kevinrzy103874&bg=30%2C128%2C139%2C0.7&google=rensirui689)
 
 
-
 ---
 
 > # 电话Phone：13590732645（微信同号Same WeChat ID）
 
 > # 邮箱（Gmail）：[rensirui689@gmail.com](mailto:rensirui689@gmail.com)
 
-> # ==各大OJ账号：Kevinrzy103874==
+> # ==各大OJ账号：Kevinrzy103874
