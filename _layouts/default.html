@@ -12,7 +12,23 @@ layout: compress
   </head>
 
   <body>
-
+    <!-- 在这里插入自定义高亮样式 -->
+    <style>
+      /* 自定义高亮样式 */
+      mark {
+        background-color: #ffff00;  /* 亮黄色背景 */
+        color: inherit;             /* 保持原有文字颜色 */
+        padding: 0.1em 0.2em;       /* 内边距 */
+        border-radius: 3px;         /* 圆角 */
+        font-weight: 500;           /* 稍微加粗 */
+      }
+      
+      /* 可选：暗色主题适配 */
+      [data-theme="dark"] mark {
+        background-color: #665500;  /* 暗色主题下的深黄色 */
+        color: #ffffff;              /* 白色文字 */
+      }
+    </style>
     {% include browser-upgrade.html %}
     {% include masthead.html %}
 
@@ -26,6 +42,31 @@ layout: compress
     </div>
 
     {% include scripts.html %}
-
+  <!-- 在这里插入高亮处理脚本 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // 获取文章内容区域（根据您的网站结构调整选择器）
+        const contentAreas = document.querySelectorAll('.page__content, .archive__item, article, .page');
+        
+        contentAreas.forEach(area => {
+          if (area) {
+            // 获取原始HTML
+            let html = area.innerHTML;
+            
+            // 使用正则替换 ==xxx== 为 <mark>xxx</mark>
+            // 这个正则确保只处理文本节点，不破坏HTML标签
+            html = html.replace(/(?:^|>)([^<]*?)(?:<|$)/g, function(match, textContent) {
+              if (textContent && textContent.includes('==')) {
+                const processedText = textContent.replace(/==(.*?)==/g, '<mark>$1</mark>');
+                return match.replace(textContent, processedText);
+              }
+              return match;
+            });
+            
+            area.innerHTML = html;
+          }
+        });
+      });
+    </script>
   </body>
 </html>
