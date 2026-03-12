@@ -8,6 +8,6 @@ main:
 - title: "全部演讲&报告"
   url: "/talks/"
 - title: "全部教学材料"
-  url: "/teaching-materials/"
+  url: "/teaching/"
 - title: "全部项目作品"
-  url: "/projects/"
+  url: "/cv/"
