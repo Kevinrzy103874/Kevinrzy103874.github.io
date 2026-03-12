@@ -232,7 +232,6 @@ layout: compress
         border-radius: 3px;
         font-weight: 500;
       }
-      
       [data-theme="dark"] mark {
         background-color: #665500;
         color: #ffffff;
@@ -536,29 +535,23 @@ layout: compress
     </script>
 
     <!-- 高亮处理脚本（您已有的） -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // 获取文章内容区域（根据您的网站结构调整选择器）
-        const contentAreas = document.querySelectorAll('.page__content, .archive__item, article, .page');
-        
-        contentAreas.forEach(area => {
-          if (area) {
-            // 获取原始HTML
-            let html = area.innerHTML;
-            
-            // 使用正则替换 ==xxx== 为 <mark>xxx</mark>
-            html = html.replace(/(?:^|>)([^<]*?)(?:<|$)/g, function(match, textContent) {
-              if (textContent && textContent.includes('==')) {
-                const processedText = textContent.replace(/==(.*?)==/g, '<mark>$1</mark>');
-                return match.replace(textContent, processedText);
-              }
-              return match;
-            });
-            
-            area.innerHTML = html;
-          }
-        });
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取文章内容区域，根据你网站结构调整选择器
+      const contentAreas = document.querySelectorAll('.page__content, .archive__item, article, .page');
+    
+      contentAreas.forEach(area => {
+        if (area) {
+          // 获取原始HTML
+          let html = area.innerHTML;
+    
+          // 使用正则替换 ==xxx== 为 <mark>xxx</mark>
+          html = html.replace(/==(.*?)==/g, "<mark>$1</mark>");
+    
+          area.innerHTML = html;
+        }
       });
+    });
     </script>
 
   </body>
