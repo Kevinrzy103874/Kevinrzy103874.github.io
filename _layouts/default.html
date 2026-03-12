@@ -9,26 +9,113 @@ layout: compress
   <head>
     {% include head.html %}
     {% include head/custom.html %}
+    
+    <!-- ===== 博客园迁移的头部样式 ===== -->
+    <!-- 字体定义 -->
+    <style>
+    @font-face {
+        font-family: 'Long Cang';
+        font-style: normal;
+        font-weight: 400;
+        src: local('Long Cang'), local('LongCang-Regular'), 
+             url(https://fonts.gstatic.com/s/longcang/v5/LYjAdGP8kkgoTp0C10XmoxU.woff2) format('woff2');
+        font-display: swap;
+    }
+
+    /* 其他字体（如果需要可以取消注释）
+    @font-face {
+        font-family: 'Slideqiuhong';
+        src: url('https://github.com/lingyunvoid/font/blob/main/Slideqiuhong-Regular.woff') format('woff'),
+             url('https://github.com/lingyunvoid/font/blob/main/Slideqiuhong-Regular.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    */
+    </style>
+
+    <!-- 背景样式 -->
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Long Cang", "Microsoft Yahei", sans-serif;
+        background: url('https://img.paulzzh.com/touhou/random') no-repeat center center fixed;
+        background-size: cover;
+        position: relative;
+    }
+
+    /* 遮罩层 - 确保内容可读 */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* 暗色主题适配 */
+    [data-theme="dark"] body::before {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* 雪花画布 */
+    #Snow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: rgba(255,255,240,0.1);
+        pointer-events: none;
+    }
+
+    /* 黑幕样式 */
+    .heimu, .heimu a, a .heimu, .heimu a.new {
+        background-color: #252525;
+        color: #252525;
+        text-shadow: none;
+    }
+    .heimu:hover, .heimu:active,
+    .heimu:hover .heimu, .heimu:active .heimu {
+        color: white !important;
+    }
+    .heimu:hover a, a:hover .heimu,
+    .heimu:active a, a:active .heimu {
+        color: lightblue !important;
+    }
+
+    /* 移动端隐藏特效 */
+    @media only screen and (max-width: 720px) {
+        #Snow, canvas, .heart {
+            display: none !important;
+        }
+    }
+    </style>
   </head>
 
   <body>
-    <!-- 在这里插入自定义高亮样式 -->
+    <!-- 自定义高亮样式（您已有的） -->
     <style>
-      /* 自定义高亮样式 */
       mark {
-        background-color: #ffff00;  /* 亮黄色背景 */
-        color: inherit;             /* 保持原有文字颜色 */
-        padding: 0.1em 0.2em;       /* 内边距 */
-        border-radius: 3px;         /* 圆角 */
-        font-weight: 500;           /* 稍微加粗 */
+        background-color: #ffff00;
+        color: inherit;
+        padding: 0.1em 0.2em;
+        border-radius: 3px;
+        font-weight: 500;
       }
       
-      /* 可选：暗色主题适配 */
       [data-theme="dark"] mark {
-        background-color: #665500;  /* 暗色主题下的深黄色 */
-        color: #ffffff;              /* 白色文字 */
+        background-color: #665500;
+        color: #ffffff;
       }
     </style>
+
     {% include browser-upgrade.html %}
     {% include masthead.html %}
 
@@ -42,7 +129,290 @@ layout: compress
     </div>
 
     {% include scripts.html %}
-  <!-- 在这里插入高亮处理脚本 -->
+
+    <!-- ===== 博客园迁移的各种特效 ===== -->
+
+    <!-- 雪花特效 -->
+    <div class="Snow">
+        <canvas id="Snow"></canvas>
+    </div>
+    <script src="https://files.cnblogs.com/files/cn-suqingnian/snow.js"></script>
+
+    <!-- 动态线条 -->
+    <div style="display:none;">动态线条</div>
+    <script>
+    !function(){
+    function n(n,e,t){
+    return n.getAttribute(e)||t
+    }
+    function e(n){
+    return document.getElementsByTagName(n)
+    }
+    function t(){
+    var t=e("script"),o=t.length,i=t[o-1];
+    return{
+    l:o,z:n(i,"zIndex",-1),o:n(i,"opacity",.5),c:n(i,"color","0,0,0"),n:n(i,"count",99)
+    }
+    }
+    function o(){
+    a=m.width=window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth,
+    c=m.height=window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight
+    }
+    function i(){
+    r.clearRect(0,0,a,c);
+    var n,e,t,o,m,l;
+    s.forEach(function(i,x){
+    for(i.x+=i.xa,i.y+=i.ya,i.xa*=i.x>a||i.x<0?-1:1,i.ya*=i.y>c||i.y<0?-1:1,r.fillRect(i.x-.5,i.y-.5,1,1),e=x+1;e<u.length;e++)n=u[e],
+    null!==n.x&&null!==n.y&&(o=i.x-n.x,m=i.y-n.y,
+    l=o*o+m*m,l<n.max&&(n===y&&l>=n.max/2&&(i.x-=.03*o,i.y-=.03*m),
+    t=(n.max-l)/n.max,r.beginPath(),r.lineWidth=t/2,r.strokeStyle="rgba("+d.c+","+(t+.2)+")",r.moveTo(i.x,i.y),r.lineTo(n.x,n.y),r.stroke()))
+    }),
+    x(i)
+    }
+    var a,c,u,m=document.createElement("canvas"),
+    d=t(),l="c_n"+d.l,r=m.getContext("2d"),
+    x=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||
+    function(n){
+    window.setTimeout(n,1e3/45)
+    },
+    w=Math.random,y={x:null,y:null,max:2e4};m.id=l,m.style.cssText="position:fixed;top:0;left:0;z-index:"+d.z+";opacity:"+d.o,e("body")[0].appendChild(m),o(),window.onresize=o,
+    window.onmousemove=function(n){
+    n=n||window.event,y.x=n.clientX,y.y=n.clientY
+    },
+    window.onmouseout=function(){
+    y.x=null,y.y=null
+    };
+    for(var s=[],f=0;d.n>f;f++){
+    var h=w()*a,g=w()*c,v=2*w()-1,p=2*w()-1;s.push({x:h,y:g,xa:v,ya:p,max:6e3})
+    }
+    u=s.concat([y]),
+    setTimeout(function(){i()},100)
+    }();
+    </script>
+    <div style="display:none;">动态线条end</div>
+
+    <!-- 鼠标点击文字特效 -->
+    <script type="text/javascript">
+    var a_idx = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.addEventListener('click', function(e) {
+            var a = new Array(
+                "算法是思考的诗篇，代码是逻辑的舞蹈",
+                "每日一题，让思维保持锋利",
+                "在bug的迷雾中寻找最优解",
+                "竞赛不是终点，而是成长的起点",
+                "键盘敲击间，世界由0和1重构",
+                "代码是写给未来的情书",
+                "AC 不是终点，而是新的起点",
+                "调试一小时，AC 一秒钟",
+                "算法之美，在于逻辑的纯粹",
+                "OIer 的浪漫，是暴力优化成正解"
+            );
+            var $i = document.createElement("span");
+            $i.textContent = a[a_idx];
+            a_idx = (a_idx + 1) % a.length;
+            var x = e.pageX,
+            y = e.pageY;
+            $i.style.cssText = 
+                "z-index: 9999999999999999;" +
+                "top: " + (y - 20) + "px;" +
+                "left: " + x + "px;" +
+                "position: absolute;" +
+                "font-weight: bold;" +
+                "font-size: 32px;" +
+                "font-family: 'Long Cang', cursive;" +
+                "color: rgb("+~~(255*Math.random())+","+~~(255*Math.random())+","+~~(255*Math.random())+");" +
+                "pointer-events: none;" +
+                "transition: all 1.5s ease;";
+            document.body.appendChild($i);
+            
+            setTimeout(function() {
+                $i.style.top = (y - 180) + "px";
+                $i.style.opacity = "0";
+            }, 10);
+            
+            setTimeout(function() {
+                $i.remove();
+            }, 1500);
+        });
+    });
+    </script>
+
+    <!-- 鼠标点击爱心特效 -->
+    <script type="text/javascript">
+    (function(window,document,undefined){
+            var hearts = [];
+            window.requestAnimationFrame = (function(){
+                    return window.requestAnimationFrame || 
+                               window.webkitRequestAnimationFrame ||
+                               window.mozRequestAnimationFrame ||
+                               window.oRequestAnimationFrame ||
+                               window.msRequestAnimationFrame ||
+                               function (callback){
+                                       setTimeout(callback,1000/60);
+                               }
+            })();
+            init();
+            function init(){
+                    css(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);z-index: 999999;pointer-events: none;}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+                    attachEvent();
+                    gameloop();
+            }
+            function gameloop(){
+                    for(var i=0;i<hearts.length;i++){
+                        if(hearts[i].alpha <=0){
+                                document.body.removeChild(hearts[i].el);
+                                hearts.splice(i,1);
+                                continue;
+                        }
+                        hearts[i].y--;
+                        hearts[i].scale += 0.004;
+                        hearts[i].alpha -= 0.013;
+                        hearts[i].el.style.cssText = "left:"+hearts[i].x+"px;top:"+hearts[i].y+"px;opacity:"+hearts[i].alpha+";transform:scale("+hearts[i].scale+","+hearts[i].scale+") rotate(45deg);background:"+hearts[i].color;
+                }
+                requestAnimationFrame(gameloop);
+            }
+            function attachEvent(){
+                    var old = typeof window.onclick==="function" && window.onclick;
+                    window.onclick = function(event){
+                            old && old();
+                            createHeart(event);
+                    }
+            }
+            function createHeart(event){
+                var d = document.createElement("div");
+                d.className = "heart";
+                hearts.push({
+                        el : d,
+                        x : event.clientX - 5,
+                        y : event.clientY - 5,
+                        scale : 1,
+                        alpha : 1,
+                        color : "rgb("+(~~(Math.random()*255))+","+(~~(Math.random()*255))+","+(~~(Math.random()*255))+")"
+                });
+                document.body.appendChild(d);
+        }
+        function css(css){
+                var style = document.createElement("style");
+                    style.type="text/css";
+                    try{
+                        style.appendChild(document.createTextNode(css));
+                    }catch(ex){
+                        style.styleSheet.cssText = css;
+                    }
+                    document.getElementsByTagName('head')[0].appendChild(style);
+        }
+    })(window,document);
+    </script>
+
+    <!-- 标题切换特效 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleConfig = {
+            onblurText: '(下次再见,拜拜)qwq人呢?',
+            onblurTime: 100,
+            focusText: '(欢迎回来,耶)qaq终于回来了',
+            focusTime: 2000,
+            originalTitle: document.title
+        };
+
+        let blurTimer, focusTimer;
+
+        window.addEventListener('blur', () => {
+            clearTimeout(focusTimer);
+            blurTimer = setTimeout(() => {
+                document.title = titleConfig.onblurText;
+            }, titleConfig.onblurTime);
+        });
+
+        window.addEventListener('focus', () => {
+            clearTimeout(blurTimer);
+            document.title = titleConfig.originalTitle;
+            focusTimer = setTimeout(() => {
+                document.title = titleConfig.focusText;
+                focusTimer = setTimeout(() => {
+                    document.title = titleConfig.originalTitle;
+                }, titleConfig.focusTime);
+            }, 100);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearTimeout(focusTimer);
+                blurTimer = setTimeout(() => {
+                    document.title = titleConfig.onblurText;
+                }, titleConfig.onblurTime);
+            } else {
+                clearTimeout(blurTimer);
+                document.title = titleConfig.originalTitle;
+                focusTimer = setTimeout(() => {
+                    document.title = titleConfig.focusText;
+                    focusTimer = setTimeout(() => {
+                        document.title = titleConfig.originalTitle;
+                    }, titleConfig.focusTime);
+                }, 100);
+            }
+        });
+    });
+    </script>
+
+    <!-- 控制台输出 -->
+    <script type="text/javascript">
+    function CONSOLECLEAR(){console.clear();} setTimeout("CONSOLECLEAR()","2000");
+    function CONSOLEOUTPUT()
+    {
+        console.log("欢迎访问 Kevinrzy103874 的博客！");
+        console.log("专注于信息学竞赛技巧、知识点、模拟赛");
+        console.log("AC 不是终点，而是新的起点");
+    }
+    setTimeout("CONSOLEOUTPUT()","5000");
+    </script>
+
+    <!-- 看板娘 -->
+    <script src="https://eqcn.ajz.miesnfu.com/wp-content/plugins/wp-3d-pony/live2dw/lib/L2Dwidget.min.js"></script>
+    <script>
+        L2Dwidget.init({
+            "model": {
+                jsonPath: "https://unpkg.com/live2d-widget-model-koharu@1.0.5/assets/koharu.model.json",
+                "scale": 1
+            },
+            "display": {
+                "position": "right",
+                "width": 120,
+                "height": 220,
+                "hOffset": 0,
+                "vOffset": 0
+            },
+            "mobile": {
+                "show": true,
+                "scale": 0.5
+            },
+            "react": {
+                "opacityDefault": 0.7,
+                "opacityOnHover": 0.2
+            }
+        });
+    </script>
+
+    <!-- 禁止复制（不包括代码） -->
+    <script>
+        document.body.onselectstart = document.body.ondrag = function() {return false;}
+        
+        // 允许代码块复制
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre, code');
+            codeBlocks.forEach(block => {
+                block.addEventListener('selectstart', function(e) {
+                    e.stopPropagation();
+                });
+                block.addEventListener('drag', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+
+    <!-- 高亮处理脚本（您已有的） -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         // 获取文章内容区域（根据您的网站结构调整选择器）
@@ -54,7 +424,6 @@ layout: compress
             let html = area.innerHTML;
             
             // 使用正则替换 ==xxx== 为 <mark>xxx</mark>
-            // 这个正则确保只处理文本节点，不破坏HTML标签
             html = html.replace(/(?:^|>)([^<]*?)(?:<|$)/g, function(match, textContent) {
               if (textContent && textContent.includes('==')) {
                 const processedText = textContent.replace(/==(.*?)==/g, '<mark>$1</mark>');
@@ -68,5 +437,6 @@ layout: compress
         });
       });
     </script>
+
   </body>
 </html>
