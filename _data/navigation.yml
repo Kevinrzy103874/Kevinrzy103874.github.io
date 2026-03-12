@@ -2,7 +2,7 @@ main:
 - title: "首页"
   url: "/"
 - title: "全部博客"
-  url: "/blog/"
+  url: "/year-archive/"
 - title: "全部出版物"
   url: "/publications/"
 - title: "全部演讲&报告"
