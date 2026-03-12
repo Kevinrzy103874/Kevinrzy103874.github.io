@@ -1,0 +1,18 @@
+<!-- _includes/copy-protection.html -->
+<!-- 禁止复制（不包括代码） -->
+<script language="javascript">
+    document.body.onselectstart = document.body.ondrag = function() {return false;}
+    
+    // 允许代码块复制
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeBlocks = document.querySelectorAll('pre, code');
+        codeBlocks.forEach(block => {
+            block.addEventListener('selectstart', function(e) {
+                e.stopPropagation();
+            });
+            block.addEventListener('drag', function(e) {
+                e.stopPropagation();
+            });
+        });
+    });
+</script>
