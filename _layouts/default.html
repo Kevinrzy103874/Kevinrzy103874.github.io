@@ -96,6 +96,82 @@ layout: compress
             display: none !important;
         }
     }
+
+      /* ===== 新增：为内容区域添加背景框 ===== */
+    /* 主页主要内容区域 */
+       #main,
+    .page__content,
+    .page,
+    article,
+    .archive,
+    .entries {
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 12px;
+        padding: 30px 35px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        margin: 20px auto;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        transition: all 0.3s ease;
+        max-width: 900px;
+        width: calc(100% - 40px);
+    }
+
+    /* 文章列表项样式 */
+    .list__item,
+    .archive__item {
+        background-color: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* 侧边栏样式 */
+    .sidebar,
+    .page__sidebar {
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+    }
+
+    /* 页脚样式 */
+    .page__footer {
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 12px 12px 0 0;
+        padding: 20px 30px;
+        margin-top: 40px;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+    }
+
+    /* 暗色主题适配 */
+    [data-theme="dark"] #main,
+    [data-theme="dark"] .page__content,
+    [data-theme="dark"] .page,
+    [data-theme="dark"] article,
+    [data-theme="dark"] .archive,
+    [data-theme="dark"] .entries,
+    [data-theme="dark"] .sidebar,
+    [data-theme="dark"] .page__sidebar,
+    [data-theme="dark"] .page__footer {
+        background-color: rgba(30, 30, 30, 0.85);
+        color: #f0f0f0;
+    }
+
+    /* 确保文字在暗色主题下可见 */
+    [data-theme="dark"] a {
+        color: #88c0ff;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] p {
+        color: #f0f0f0;
+    }
+    /* ===== 背景框样式结束 ===== */
     </style>
   </head>
 
