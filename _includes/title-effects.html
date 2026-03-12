@@ -1,0 +1,51 @@
+<!-- _includes/title-effects.html -->
+<!-- 标题切换特效 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleConfig = {
+        onblurText: '(下次再见,拜拜)qwq人呢?',
+        onblurTime: 100,
+        focusText: '(欢迎回来,耶)qaq终于回来了',
+        focusTime: 2000,
+        originalTitle: document.title
+    };
+
+    let blurTimer, focusTimer;
+
+    window.addEventListener('blur', () => {
+        clearTimeout(focusTimer);
+        blurTimer = setTimeout(() => {
+            document.title = titleConfig.onblurText;
+        }, titleConfig.onblurTime);
+    });
+
+    window.addEventListener('focus', () => {
+        clearTimeout(blurTimer);
+        document.title = titleConfig.originalTitle;
+        focusTimer = setTimeout(() => {
+            document.title = titleConfig.focusText;
+            focusTimer = setTimeout(() => {
+                document.title = titleConfig.originalTitle;
+            }, titleConfig.focusTime);
+        }, 100);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearTimeout(focusTimer);
+            blurTimer = setTimeout(() => {
+                document.title = titleConfig.onblurText;
+            }, titleConfig.onblurTime);
+        } else {
+            clearTimeout(blurTimer);
+            document.title = titleConfig.originalTitle;
+            focusTimer = setTimeout(() => {
+                document.title = titleConfig.focusText;
+                focusTimer = setTimeout(() => {
+                    document.title = titleConfig.originalTitle;
+                }, titleConfig.focusTime);
+            }, 100);
+        }
+    });
+});
+</script>
