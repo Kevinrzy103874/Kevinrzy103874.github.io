@@ -9,6 +9,41 @@ layout: compress
   <head>
     {% include head.html %}
     {% include head/custom.html %}
+
+    <style>
+    /* 方案1：适配 Jekyll 原生 kramdown（==内容== 转 <ins> 标签） */
+    ins {
+    	background-color: #fef01b; /* 黄色高亮，可自行修改 */
+    	padding: 0 4px;            /* 内边距，避免文字贴边 */
+    	border-radius: 2px;        /* 圆角，更美观 */
+    	text-decoration: none;     /* 去掉 <ins> 原生下划线 */
+    	color: #000;               /* 文字颜色 */
+    }
+    /* 方案2：适配 marked 扩展（==内容== 转 <mark> 标签） */
+    mark {
+    	background-color: #fef01b;
+    	padding: 0 4px;
+    	border-radius: 2px;
+    	color: #000;
+    }
+    /* 基础页面样式（可选，可根据自己的站点调整） */
+    body {
+    	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    	max-width: 1200px;
+    	margin: 0 auto;
+    	padding: 20px;
+    	line-height: 1.6;
+    }
+    header, footer {
+    	padding: 10px 0;
+    	border-top: 1px solid #eee;
+    	border-bottom: 1px solid #eee;
+    	margin: 20px 0;
+    }
+    .container {
+    	margin: 30px 0;
+    }
+    </style>
     
     <!-- ===== 博客园迁移的头部样式 ===== -->
     <!-- 字体定义 -->
@@ -535,22 +570,20 @@ layout: compress
     </script>
 
     <!-- 高亮处理脚本（您已有的） -->
-   <script>
+   <script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-mark@1.0.1/lib/marked-mark.umd.min.js"></script>
+    <script>
+    // 确保 DOM 加载完成后执行渲染逻辑
     document.addEventListener('DOMContentLoaded', function() {
-      // 获取文章内容区域，根据你网站结构调整选择器
-      const contentAreas = document.querySelectorAll('.page__content, .archive__item, article, .page');
-    
-      contentAreas.forEach(area => {
-        if (area) {
-          // 获取原始HTML
-          let html = area.innerHTML;
-    
-          // 使用正则替换 ==xxx== 为 <mark>xxx</mark>
-          html = html.replace(/==(.*?)==/g, "<mark>$1</mark>");
-    
-          area.innerHTML = html;
-        }
-      });
+    	const contentContainer = document.getElementById('markdown-content');
+    	// 仅当容器存在时执行，避免报错
+    	if (contentContainer) {
+    		// 注册 marked 高亮插件
+    		marked.use(markedMark.default());
+    		// 读取原生内容 → 用 marked 重新渲染 → 替换回容器
+    		const mdText = contentContainer.textContent;
+    		contentContainer.innerHTML = marked.parse(mdText);
+    	}
     });
     </script>
 
