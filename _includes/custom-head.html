@@ -1,0 +1,67 @@
+<!-- _includes/custom-head.html -->
+<!-- 字体定义 -->
+<style>
+/* 博客园迁移的字体定义 */
+@font-face {
+    font-family: 'Long Cang';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Long Cang'), local('LongCang-Regular'), 
+         url(https://fonts.gstatic.com/s/longcang/v5/LYjAdGP8kkgoTp0C10XmoxU.woff2) format('woff2');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Slideqiuhong';
+    src: url('https://github.com/lingyunvoid/font/blob/main/Slideqiuhong-Regular.woff') format('woff'),
+         url('https://github.com/lingyunvoid/font/blob/main/Slideqiuhong-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* 更多字体... */
+</style>
+
+<!-- 背景样式 -->
+<style>
+/* 博客园背景迁移 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Long Cang", "Microsoft Yahei", sans-serif;
+    background: url('https://img.paulzzh.com/touhou/random') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* 遮罩层 - 确保内容可读 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] body::before {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* 雪花画布 */
+#Snow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgba(255,255,240,0.1);
+    pointer-events: none;
+}
+</style>
