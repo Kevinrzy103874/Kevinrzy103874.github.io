@@ -45,7 +45,7 @@ layout: compress
         position: relative;
     }
 
-    /* 遮罩层 - 确保内容可读 */
+      /* 遮罩层 - 确保内容可读 */
     body::before {
         content: '';
         position: fixed;
@@ -53,14 +53,14 @@ layout: compress
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: rgba(255, 255, 255, 0.2);  /* 从0.7改为0.2，让背景图片更明显 */
         z-index: -1;
         pointer-events: none;
     }
 
     /* 暗色主题适配 */
     [data-theme="dark"] body::before {
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 0.3);  /* 从0.7改为0.3 */
     }
 
     /* 雪花画布 */
@@ -97,24 +97,37 @@ layout: compress
         }
     }
 
-      /* ===== 新增：为内容区域添加背景框 ===== */
-    /* 主页主要内容区域 */
-       #main,
+        /* ===== 新增：为内容区域添加整体背景框 ===== */
+    /* 主容器 - 整体背景框 */
+    #main {
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 16px;
+        padding: 30px 35px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        transition: all 0.3s ease;
+        max-width: 1200px;
+        width: calc(100% - 60px);
+        margin: 30px auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;  /* 子元素之间的间距 */
+    }
+
+    /* 左侧主要内容区域 - 自适应宽度 */
     .page__content,
     .page,
     article,
     .archive,
     .entries {
-        background-color: rgba(255, 255, 255, 0.85);
-        border-radius: 12px;
-        padding: 30px 35px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        margin: 20px auto;
-        backdrop-filter: blur(3px);
-        -webkit-backdrop-filter: blur(3px);
-        transition: all 0.3s ease;
-        max-width: 900px;
-        width: calc(100% - 40px);
+        flex: 1;  /* 占据剩余空间 */
+        min-width: 300px;  /* 最小宽度，防止过窄 */
+        background-color: transparent !important;  /* 透明，让父级背景显示 */
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
     }
 
     /* 文章列表项样式 */
@@ -123,44 +136,57 @@ layout: compress
         background-color: transparent !important;
         padding: 0 !important;
         box-shadow: none !important;
+        margin-bottom: 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    /* 侧边栏样式 */
+    .list__item:last-child,
+    .archive__item:last-child {
+        border-bottom: none;
+    }
+
+    /* 侧边栏容器 - 固定宽度 */
     .sidebar,
     .page__sidebar {
-        background-color: rgba(255, 255, 255, 0.85);
+        width: 300px;  /* 固定侧边栏宽度 */
+        flex-shrink: 0;  /* 防止被压缩 */
+        background-color: rgba(255, 255, 255, 0.95);  /* 稍不透明的侧边栏背景 */
         border-radius: 12px;
         padding: 25px;
-        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         backdrop-filter: blur(3px);
         -webkit-backdrop-filter: blur(3px);
+        align-self: flex-start;  /* 防止侧边栏被拉伸 */
     }
 
-    /* 页脚样式 */
+    /* 页脚样式 - 独立背景框 */
     .page__footer {
         background-color: rgba(255, 255, 255, 0.85);
-        border-radius: 12px 12px 0 0;
-        padding: 20px 30px;
-        margin-top: 40px;
+        border-radius: 16px 16px 0 0;
+        padding: 25px 35px;
+        margin: 0 auto 30px;
         backdrop-filter: blur(3px);
         -webkit-backdrop-filter: blur(3px);
+        max-width: 1200px;
+        width: calc(100% - 60px);
     }
 
     /* 暗色主题适配 */
     [data-theme="dark"] #main,
-    [data-theme="dark"] .page__content,
-    [data-theme="dark"] .page,
-    [data-theme="dark"] article,
-    [data-theme="dark"] .archive,
-    [data-theme="dark"] .entries,
-    [data-theme="dark"] .sidebar,
-    [data-theme="dark"] .page__sidebar,
     [data-theme="dark"] .page__footer {
         background-color: rgba(30, 30, 30, 0.85);
+    }
+
+    [data-theme="dark"] .sidebar,
+    [data-theme="dark"] .page__sidebar {
+        background-color: rgba(40, 40, 40, 0.95);
+    }
+
+    /* 暗色主题文字颜色 */
+    [data-theme="dark"] {
         color: #f0f0f0;
     }
 
-    /* 确保文字在暗色主题下可见 */
     [data-theme="dark"] a {
         color: #88c0ff;
     }
@@ -170,6 +196,31 @@ layout: compress
     [data-theme="dark"] h3,
     [data-theme="dark"] p {
         color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .list__item,
+    [data-theme="dark"] .archive__item {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 移动端适配 */
+    @media only screen and (max-width: 768px) {
+        #main {
+            flex-direction: column;
+            padding: 20px;
+            width: calc(100% - 40px);
+        }
+        
+        .sidebar,
+        .page__sidebar {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .page__footer {
+            width: calc(100% - 40px);
+            padding: 20px;
+        }
     }
     /* ===== 背景框样式结束 ===== */
     </style>
