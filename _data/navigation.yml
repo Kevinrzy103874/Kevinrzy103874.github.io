@@ -1,8 +1,13 @@
 main:
-  - title: "首页"
-    url: /
-  - title: "全部博客"
-    url: /year-archive/
-  - title: "分类"
-    url: /其他/分类/
-  
+- title: "首页"
+  url: "/"
+- title: "全部博客"
+  url: "/blog/"
+- title: "全部出版物"
+  url: "/publications/"
+- title: "全部演讲&报告"
+  url: "/talks/"
+- title: "全部教学材料"
+  url: "/teaching-materials/"
+- title: "全部项目作品"
+  url: "/projects/"
