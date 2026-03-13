@@ -254,6 +254,25 @@ layout: compress
 
     {% include scripts.html %}
 
+  <!-- LaTeX公式支持 - MathJax -->
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],  // 支持 $...$ 作为行内公式
+      displayMath: [['$$', '$$'], ['\\[', '\\]']], // 支持 $$...$$ 作为行间公式
+      processEscapes: true,  // 支持 \$ 转义
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    svg: {
+      fontCache: 'global'
+    }
+  };
+</script>
+    
     <!-- ===== 博客园迁移的各种特效 ===== -->
 
     <!-- 鼠标点击文字特效 -->
