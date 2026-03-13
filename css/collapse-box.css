@@ -1,145 +1,160 @@
-/* collapse-box.css - 彩色折叠框 + 暗色模式适配 */
+/* collapse-box.css - 彩色折叠框（适配亮暗色，参考OI-Wiki风格） */
 .collapse-container {
-  margin: 12px 0;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  margin: 1.2em 0;
+  border-radius: 8px;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transition: border-color 0.2s, background-color 0.2s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  transition: all 0.2s ease;
+  border: 1px solid #e9e9e9; /* 亮色边框 */
+  background-color: #ffffff; /* 亮色背景 */
 }
 
-/* 亮色模式默认样式 */
+/* 标题栏 - 始终可见 */
 .collapse-header {
-  padding: 8px 12px;
+  padding: 12px 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1.05em;
   transition: background-color 0.2s;
-  background-color: #fff;
+  background-color: #f8f9fa; /* 亮色标题栏背景 */
+  border-bottom: 1px solid #e9e9e9;
+  user-select: none;
 }
 
 .collapse-header:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: #e9ecef; /* 亮色悬停效果 */
 }
 
+/* 展开时标题栏下边框变透明，与内容区无缝连接 */
+.collapse-container.expanded .collapse-header {
+  border-bottom-color: transparent;
+}
+
+/* 图标样式 */
 .collapse-icon {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  border-radius: 2px;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  border-radius: 4px;
   text-align: center;
-  line-height: 16px;
-  font-size: 12px;
-  color: #fff;
+  line-height: 18px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
 .collapse-container.expanded .collapse-icon {
   transform: rotate(90deg);
 }
 
+/* 内容区 */
 .collapse-content {
-  padding: 0 12px;
+  padding: 0 16px;
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s, padding 0.3s;
-  background-color: #fff;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+  background-color: #ffffff;
+  color: #2c3e50;
+  line-height: 1.6;
+  font-size: 0.95em;
 }
 
 .collapse-container.expanded .collapse-content {
-  padding: 12px;
-  max-height: 2000px;
+  padding: 16px;
+  max-height: 2000px; /* 足够大以容纳内容 */
 }
 
-/* 6色主题（亮色） */
+/* 6色主题（亮色）- 主要通过左侧边框和图标颜色区分 */
+.collapse-red { border-left: 5px solid #dc2626; }
 .collapse-red .collapse-icon { background-color: #dc2626; }
-.collapse-red .collapse-header { border-bottom: 1px solid #fecdd3; }
 
+.collapse-orange { border-left: 5px solid #f97316; }
 .collapse-orange .collapse-icon { background-color: #f97316; }
-.collapse-orange .collapse-header { border-bottom: 1px solid #fed7aa; }
 
+.collapse-yellow { border-left: 5px solid #eab308; }
 .collapse-yellow .collapse-icon { background-color: #eab308; }
-.collapse-yellow .collapse-header { border-bottom: 1px solid #fef08a; }
 
+.collapse-green { border-left: 5px solid #22c55e; }
 .collapse-green .collapse-icon { background-color: #22c55e; }
-.collapse-green .collapse-header { border-bottom: 1px solid #bbf7d0; }
 
+.collapse-blue { border-left: 5px solid #3b82f6; }
 .collapse-blue .collapse-icon { background-color: #3b82f6; }
-.collapse-blue .collapse-header { border-bottom: 1px solid #bfdbfe; }
 
+.collapse-purple { border-left: 5px solid #8b5cf6; }
 .collapse-purple .collapse-icon { background-color: #8b5cf6; }
-.collapse-purple .collapse-header { border-bottom: 1px solid #ddd6fe; }
 
-/* 链接样式（亮色） */
+/* 链接样式 */
 .collapse-header a {
   color: inherit;
   text-decoration: none;
   flex: 1;
 }
 .collapse-header a:hover {
+  color: #3498db;
   text-decoration: underline;
 }
 
-/* ========== 暗色模式适配 ========== */
-@media (prefers-color-scheme: dark) {
-  /* 折叠框主体 */
-  .collapse-container {
-    border-color: #374151;
-    background-color: #1f2937;
-  }
+/* ========== 暗色模式适配 (针对您的 [data-theme="dark"] ) ========== */
+[data-theme="dark"] .collapse-container {
+  border-color: #4b5563; /* 深色边框，保证轮廓可见 */
+  background-color: #1f2937; /* 深色背景 */
+}
 
-  /* 标题栏 */
-  .collapse-header {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
+[data-theme="dark"] .collapse-header {
+  background-color: #2d3748; /* 比内容区稍亮的标题栏，保证可见 */
+  color: #f0f0f0;
+  border-bottom-color: #4b5563;
+}
 
-  .collapse-header:hover {
-    background-color: #374151;
-  }
+[data-theme="dark"] .collapse-header:hover {
+  background-color: #374151; /* 悬停效果 */
+}
 
-  /* 内容区 */
-  .collapse-content {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
+[data-theme="dark"] .collapse-content {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
 
-  /* 6色主题（暗色，调暗适配） */
-  .collapse-red .collapse-icon { background-color: #ef4444; }
-  .collapse-red .collapse-header { border-bottom: 1px solid #4b2222; }
+/* 暗色主题下的颜色微调 - 让彩色更鲜明但不刺眼 */
+[data-theme="dark"] .collapse-red { border-left-color: #ef4444; }
+[data-theme="dark"] .collapse-red .collapse-icon { background-color: #ef4444; }
 
-  .collapse-orange .collapse-icon { background-color: #f97316; }
-  .collapse-orange .collapse-header { border-bottom: 1px solid #4b3222; }
+[data-theme="dark"] .collapse-orange { border-left-color: #f97316; }
+[data-theme="dark"] .collapse-orange .collapse-icon { background-color: #f97316; }
 
-  .collapse-yellow .collapse-icon { background-color: #eab308; }
-  .collapse-yellow .collapse-header { border-bottom: 1px solid #4b4222; }
+[data-theme="dark"] .collapse-yellow { border-left-color: #eab308; }
+[data-theme="dark"] .collapse-yellow .collapse-icon { background-color: #eab308; }
 
-  .collapse-green .collapse-icon { background-color: #22c55e; }
-  .collapse-green .collapse-header { border-bottom: 1px solid #224b22; }
+[data-theme="dark"] .collapse-green { border-left-color: #4ade80; } /* 稍亮一点的绿 */
+[data-theme="dark"] .collapse-green .collapse-icon { background-color: #4ade80; }
 
-  .collapse-blue .collapse-icon { background-color: #3b82f6; }
-  .collapse-blue .collapse-header { border-bottom: 1px solid #22324b; }
+[data-theme="dark"] .collapse-blue { border-left-color: #60a5fa; } /* 稍亮一点的蓝 */
+[data-theme="dark"] .collapse-blue .collapse-icon { background-color: #60a5fa; }
 
-  .collapse-purple .collapse-icon { background-color: #8b5cf6; }
-  .collapse-purple .collapse-header { border-bottom: 1px solid #32224b; }
+[data-theme="dark"] .collapse-purple { border-left-color: #c084fc; } /* 稍亮一点的紫 */
+[data-theme="dark"] .collapse-purple .collapse-icon { background-color: #c084fc; }
 
-  /* 链接样式（暗色） */
-  .collapse-header a {
-    color: #d1d5db;
-  }
-  .collapse-header a:hover {
-    color: #fff;
-    text-decoration: underline;
-  }
+/* 暗色模式链接样式 */
+[data-theme="dark"] .collapse-header a {
+  color: #e5e7eb;
+}
+[data-theme="dark"] .collapse-header a:hover {
+  color: #93c5fd;
+}
 
-  /* 代码块适配（如果MD里有代码） */
-  .collapse-content pre {
-    background-color: #111827 !important;
-    border-color: #374151 !important;
-  }
-  .collapse-content code {
-    color: #e5e7eb !important;
-  }
+/* 暗色模式代码块适配 */
+[data-theme="dark"] .collapse-content pre {
+  background-color: #111827 !important;
+  border: 1px solid #374151 !important;
+  color: #e5e7eb;
+}
+[data-theme="dark"] .collapse-content code {
+  background-color: #2d3748 !important;
+  color: #f0f0f0 !important;
+  border: none;
 }
