@@ -1,0 +1,32 @@
+{
+  "problems": [
+    {
+      "id": "R001",
+      "title": "任我行·两数之和",
+      "difficulty": "easy",
+      "difficulty_text": "简单",
+      "tags": ["数组", "哈希表"],
+      "status": "已发布",
+      "detail": "two-sum",
+      "description": "给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值的那两个整数，并返回它们的数组下标。",
+      "time_limit": "1s",
+      "memory_limit": "256MB",
+      "sample_input": "nums = [2,7,11,15], target = 9",
+      "sample_output": "[0,1]"
+    },
+    {
+      "id": "R002",
+      "title": "任我行·反转链表",
+      "difficulty": "medium",
+      "difficulty_text": "中等",
+      "tags": ["链表", "递归"],
+      "status": "已发布",
+      "detail": "reverse-link",
+      "description": "给你单链表的头节点 head ，请你反转链表，并返回反转后的链表。",
+      "time_limit": "1s",
+      "memory_limit": "128MB",
+      "sample_input": "[1,2,3,4,5]",
+      "sample_output": "[5,4,3,2,1]"
+    }
+  ]
+}
