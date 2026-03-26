@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>网络航标 | 个人导航 · 灵感之境</title>
+    <title>网络导航航标</title>
     <!-- 预连接加速 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 优雅字体: Plus Jakarta Sans + 等宽点缀 -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 现代字体: Space Grotesk + 科技感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 专业图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入 canvas 粒子库 - 轻量动态背景 -->
     <style>
         * {
             margin: 0;
@@ -19,128 +20,103 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0a0c15;
-            color: #eef2ff;
+            font-family: 'Space Grotesk', sans-serif;
+            background: #05070f;
+            color: #eef5ff;
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* 动态星空/网格背景 - 气派深邃 */
-        .bg-orb {
+        /* Canvas 粒子背景 (全屏动感) */
+        #particleCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -2;
-            background: radial-gradient(circle at 20% 30%, #0f1222, #03050b);
+            display: block;
+            pointer-events: none;
         }
 
-        .bg-grid {
+        /* 动态渐变光晕层 */
+        .dynamic-glow {
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
-            background-size: 48px 48px;
+            background: radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.15), rgba(0, 0, 0, 0.4) 80%);
             z-index: -1;
             pointer-events: none;
+            animation: breatheGlow 8s infinite alternate;
         }
 
-        /* 动态光晕 */
-        .glow-sphere {
-            position: fixed;
-            width: 70vw;
-            height: 70vw;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.25), rgba(6, 182, 212, 0) 70%);
-            top: -30vh;
-            right: -20vw;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            pointer-events: none;
+        @keyframes breatheGlow {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.02); }
         }
 
-        .glow-sphere-2 {
-            position: fixed;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.2), rgba(0, 0, 0, 0) 70%);
-            bottom: -20vh;
-            left: -15vw;
-            filter: blur(100px);
-            z-index: -1;
-        }
-
-        /* 主容器 - 宽敞导航感 */
+        /* 主容器 */
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem 2rem 4rem;
+            padding: 1.8rem 2rem 4rem;
             position: relative;
+            backdrop-filter: blur(0px);
         }
 
-        /* 头部导航风格 — 气派、极简、科技 */
+        /* 头部区域 (科技导航栏) */
         .nav-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1.5rem;
-            margin-bottom: 4rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(4px);
+            margin-bottom: 3rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(10, 20, 40, 0.45);
+            backdrop-filter: blur(12px);
+            border-radius: 80px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s;
         }
 
         .logo-area {
             display: flex;
             align-items: baseline;
-            gap: 0.5rem;
+            gap: 0.8rem;
         }
 
         .logo-icon {
             font-size: 2rem;
-            background: linear-gradient(125deg, #a5f3fc, #818cf8);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            filter: drop-shadow(0 0 8px #3b82f6);
+            animation: iconPulse 2s infinite ease;
+        }
+
+        @keyframes iconPulse {
+            0% { text-shadow: 0 0 0px #3b82f6; }
+            50% { text-shadow: 0 0 10px #3b82f6; }
+            100% { text-shadow: 0 0 0px #3b82f6; }
         }
 
         .logo-text {
             font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: -0.3px;
-            background: linear-gradient(to right, #f0f9ff, #c7d2fe);
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #c4e0ff, #8b5cf6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-        }
-
-        .badge-slogan {
-            background: rgba(255,255,240,0.05);
-            backdrop-filter: blur(8px);
-            padding: 0.4rem 1rem;
-            border-radius: 60px;
-            font-size: 0.75rem;
-            font-weight: 400;
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            color: #b9c3e6;
+            letter-spacing: -0.3px;
         }
 
         .stats-pill {
             display: flex;
-            gap: 1rem;
-            background: rgba(15, 23, 42, 0.5);
+            gap: 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(12px);
-            padding: 0.5rem 1.4rem;
-            border-radius: 80px;
-            border: 1px solid rgba(71, 85, 105, 0.5);
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
         }
 
         .stats-pill span {
@@ -150,104 +126,155 @@
 
         .stats-pill i {
             margin-right: 6px;
-            color: #38bdf8;
+            color: #3b82f6;
         }
 
-        /* 主视觉：导航格言 */
+        /* 主视觉：动态文字 */
         .hero-vision {
-            margin-bottom: 3.5rem;
             text-align: center;
+            margin: 2rem 0 2.8rem;
         }
 
-        .hero-vision h1 {
+        .glitch-text {
             font-size: 3.2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #eef2ff, #a5b4fc, #c084fc);
+            font-weight: 800;
+            background: linear-gradient(125deg, #fff, #a855f7, #3b82f6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             letter-spacing: -0.02em;
-            margin-bottom: 0.75rem;
+            animation: glitchShift 3s infinite;
+        }
+
+        @keyframes glitchShift {
+            0%, 100% { transform: skew(0deg, 0deg); opacity: 1; text-shadow: 0 0 2px cyan; }
+            95% { transform: skew(0deg, 0deg); opacity: 1; }
+            96% { transform: skew(2deg, 1deg); text-shadow: -2px 0 #ff00c1; }
+            97% { transform: skew(-2deg, -1deg); text-shadow: 2px 0 #00fff9; }
+            98% { transform: skew(0deg, 0deg); }
         }
 
         .hero-vision p {
-            font-size: 1.05rem;
-            color: #9ca3cf;
-            max-width: 620px;
-            margin: 0 auto;
-            font-weight: 400;
+            font-size: 1rem;
+            color: #94a3d8;
+            margin-top: 0.6rem;
+            letter-spacing: 0.5px;
         }
 
-        /* 航标分类栏 — 类似导航站的分组切换，高级磨砂 */
+        /* 分类导航栏 动感悬浮 */
         .category-rail {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 0.6rem;
+            gap: 0.8rem;
             margin-bottom: 3rem;
-            padding: 0.5rem;
         }
 
         .cat-nav {
-            background: rgba(20, 27, 45, 0.6);
+            background: rgba(15, 25, 45, 0.6);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(71, 85, 105, 0.5);
-            padding: 0.55rem 1.4rem;
-            border-radius: 60px;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            padding: 0.6rem 1.6rem;
+            border-radius: 50px;
             font-size: 0.85rem;
             font-weight: 500;
-            color: #cbd5e6;
+            color: #cbd5ff;
             cursor: pointer;
-            transition: all 0.25s ease;
-            letter-spacing: 0.2px;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
         }
 
         .cat-nav i {
-            margin-right: 6px;
-            font-size: 0.8rem;
+            margin-right: 8px;
+        }
+
+        .cat-nav::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .cat-nav:hover::before {
+            left: 100%;
         }
 
         .cat-nav:hover {
-            background: #2d3a5e;
-            border-color: #818cf8;
-            color: white;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            border-color: #3b82f6;
+            box-shadow: 0 6px 16px -6px #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
         }
 
         .cat-nav.active {
-            background: #4f46e5;
-            border-color: #818cf8;
+            background: linear-gradient(95deg, #3b82f6, #a855f7);
+            border-color: #ffffff80;
             color: white;
-            box-shadow: 0 8px 20px -12px #4f46e5;
+            box-shadow: 0 0 15px #3b82f6;
         }
 
-        /* 网格布局 — 精密导航卡片，更大气，弱化"友链"字眼，强调"站点 · 航标" */
+        /* 网格布局 */
         .sites-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.8rem;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 2rem;
         }
 
-        /* 卡片：类似仪表盘风格，毛玻璃+边框发光 */
+        /* 卡片特效: 流光边框 + 动感悬浮 */
         .nav-card {
-            background: rgba(18, 25, 45, 0.55);
+            background: rgba(12, 20, 35, 0.65);
             backdrop-filter: blur(12px);
-            border-radius: 28px;
-            border: 1px solid rgba(71, 85, 105, 0.4);
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            overflow: hidden;
+            border-radius: 32px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.2);
             position: relative;
+            overflow: hidden;
+            animation: cardFloatIn 0.5s ease-out backwards;
+        }
+
+        /* 流光边框动画 (悬停时) */
+        .nav-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(125deg, #3b82f6, #a855f7, #ec489a, #3b82f6);
+            border-radius: 34px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease;
+            background-size: 300% 300%;
+            animation: borderFlow 3s infinite alternate;
+        }
+
+        .nav-card:hover::after {
+            opacity: 0.7;
+        }
+
+        @keyframes borderFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         .nav-card:hover {
-            transform: translateY(-6px);
-            background: rgba(28, 38, 62, 0.75);
-            border-color: rgba(129, 140, 248, 0.7);
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            transform: translateY(-8px) scale(1.01);
+            border-color: transparent;
+            box-shadow: 0 25px 35px -12px rgba(59, 130, 246, 0.3);
+            background: rgba(20, 30, 55, 0.85);
         }
 
         .card-content {
-            padding: 1.6rem;
+            padding: 1.7rem;
+            position: relative;
+            z-index: 2;
         }
 
         /* 站点头部 */
@@ -259,19 +286,25 @@
         }
 
         .site-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(145deg, #1e293b, #111827);
-            border-radius: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, #1e2a4a, #0f172a);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 600;
-            color: #a5f3fc;
-            box-shadow: 0 8px 14px -6px rgba(0,0,0,0.3);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            transition: all 0.2s;
+            color: #60a5fa;
+            box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.4);
+            border: 1px solid #3b82f680;
+            transition: all 0.3s;
+        }
+
+        .nav-card:hover .site-icon {
+            transform: rotate(3deg) scale(1.02);
+            border-color: #a855f7;
+            color: #c084fc;
         }
 
         .site-info {
@@ -281,7 +314,6 @@
         .site-name {
             font-size: 1.35rem;
             font-weight: 700;
-            letter-spacing: -0.2px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -289,36 +321,35 @@
         }
 
         .site-name i {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #60a5fa;
-            opacity: 0.9;
+            transition: transform 0.2s;
+        }
+
+        .nav-card:hover .site-name i {
+            transform: translateX(4px);
         }
 
         .site-cat {
             display: inline-block;
             font-size: 0.65rem;
             font-weight: 600;
-            background: rgba(56, 189, 248, 0.2);
+            background: rgba(59, 130, 246, 0.25);
             padding: 0.2rem 0.7rem;
-            border-radius: 30px;
+            border-radius: 40px;
             margin-top: 6px;
-            color: #b2ddff;
-            letter-spacing: 0.3px;
+            backdrop-filter: blur(2px);
         }
 
-        /* 站点描述 */
+        /* 描述 */
         .site-desc {
             font-size: 0.88rem;
             line-height: 1.45;
-            color: #cbd5e1;
+            color: #b9c8ff;
             margin: 0.9rem 0 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
         }
 
-        /* 标签云 */
+        /* 标签 */
         .site-tags {
             display: flex;
             flex-wrap: wrap;
@@ -327,424 +358,375 @@
         }
 
         .site-tag {
-            background: rgba(79, 70, 229, 0.15);
+            background: rgba(79, 70, 229, 0.2);
             font-size: 0.7rem;
             padding: 0.25rem 0.8rem;
             border-radius: 30px;
             font-weight: 500;
             color: #b9c8ff;
-            backdrop-filter: blur(2px);
-            border: 0.5px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.2s;
         }
 
-        /* 行动区域：更像导航跳转 */
+        .nav-card:hover .site-tag {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        /* 行动区：链接特效核心 */
         .action-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-top: 1px solid rgba(71, 85, 105, 0.4);
+            border-top: 1px solid rgba(59, 130, 246, 0.3);
             padding-top: 1rem;
-            margin-top: 0.2rem;
         }
 
+        /* 极具动感的链接按钮 */
         .nav-link {
             text-decoration: none;
-            background: rgba(56, 189, 248, 0.08);
-            padding: 0.45rem 1.1rem;
-            border-radius: 40px;
+            background: rgba(59, 130, 246, 0.12);
+            padding: 0.5rem 1.3rem;
+            border-radius: 60px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: #e0f2fe;
+            color: #eef2ff;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            gap: 10px;
+            transition: all 0.35s ease;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* 波纹特效 */
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(59, 130, 246, 0.8));
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+            z-index: 0;
+            opacity: 0;
+        }
+
+        .nav-link:active::before {
+            width: 180px;
+            height: 180px;
+            opacity: 0.5;
+            transition: 0s;
         }
 
         .nav-link i {
-            font-size: 0.7rem;
-            transition: transform 0.2s;
+            position: relative;
+            z-index: 2;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-link span {
+            position: relative;
+            z-index: 2;
         }
 
         .nav-link:hover {
-            background: #4f46e5;
-            border-color: #818cf8;
+            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
+            border-color: #c084fc;
             color: white;
+            box-shadow: 0 0 12px #3b82f6;
+            transform: scale(1.02);
         }
 
         .nav-link:hover i {
-            transform: translateX(4px);
+            transform: translateX(6px) rotate(-5deg);
+            filter: drop-shadow(0 0 3px white);
         }
 
+        /* 元数据 */
         .meta-info {
             font-size: 0.7rem;
-            color: #6b728e;
+            color: #7c8db0;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s;
         }
 
-        /* 优雅空状态 */
+        .nav-card:hover .meta-info {
+            color: #b9c8ff;
+        }
+
+        /* 空状态 */
         .empty-guide {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 3.5rem;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(8px);
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 48px;
-            border: 1px dashed #4b5563;
+            backdrop-filter: blur(8px);
         }
 
-        /* 页脚 — 精致低调 */
+        /* 页脚动态 */
         .footer-compass {
-            margin-top: 5rem;
+            margin-top: 4rem;
             padding-top: 2rem;
             text-align: center;
             font-size: 0.75rem;
-            color: #6b728e;
-            border-top: 1px solid rgba(71, 85, 105, 0.3);
+            color: #6c7aa5;
+            border-top: 1px solid rgba(59, 130, 246, 0.3);
             display: flex;
             justify-content: center;
             gap: 2rem;
             flex-wrap: wrap;
         }
 
-        /* 响应式 */
-        @media (max-width: 720px) {
-            .container {
-                padding: 1.2rem;
-            }
-            .hero-vision h1 {
-                font-size: 2rem;
-            }
-            .nav-header {
-                flex-direction: column;
-                align-items: start;
-            }
-            .sites-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 动效卡片入场 */
-        @keyframes cardRise {
-            0% {
+        /* 卡片入场动画 */
+        @keyframes cardFloatIn {
+            from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
-            100% {
+            to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        .nav-card {
-            animation: cardRise 0.4s ease-out backwards;
+
+        /* 响应式 */
+        @media (max-width: 720px) {
+            .container {
+                padding: 1rem;
+            }
+            .glitch-text {
+                font-size: 2rem;
+            }
+            .nav-header {
+                border-radius: 40px;
+                padding: 0.6rem 1rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="bg-orb"></div>
-<div class="bg-grid"></div>
-<div class="glow-sphere"></div>
-<div class="glow-sphere-2"></div>
+
+<canvas id="particleCanvas"></canvas>
+<div class="dynamic-glow"></div>
 
 <div class="container">
-    <!-- 导航栏头部: 气派标识 而非传统友链字样 -->
     <div class="nav-header">
         <div class="logo-area">
-            <i class="fas fa-compass logo-icon"></i>
-            <span class="logo-text">航标集</span>
-            <div class="badge-slogan"><i class="fas fa-map-signs"></i> 灵感航线</div>
+            <i class="fas fa-satellite-dish logo-icon"></i>
+            <span class="logo-text">极光航标</span>
         </div>
         <div class="stats-pill">
-            <span><i class="fas fa-satellite-dish"></i> 信标 <span id="totalBeacons">0</span></span>
-            <span><i class="fas fa-globe"></i> 星群索引</span>
+            <span><i class="fas fa-star-of-life"></i> 信标 <span id="totalBeacons">0</span></span>
+            <span><i class="fas fa-wifi"></i> 动态星链</span>
         </div>
     </div>
 
-    <!-- 主视觉：导航站气质 -->
     <div class="hero-vision">
-        <h1><i class="fas fa-location-dot"></i> 网络·航标矩阵</h1>
-        <p>精选数字角落 · 汇聚思想节点 —— 你的个人导航站，珍藏每一次远航</p>
+        <div class="glitch-text">✦ 动态导航枢纽 ✦</div>
+        <p><i class="fas fa-bolt"></i> 流光粒子 · 链接脉冲效应 · 即刻启航</p>
     </div>
 
-    <!-- 分类导航栏 (类似导航页目录) -->
     <div class="category-rail" id="categoryRail">
-        <div class="cat-nav active" data-cat="all"><i class="fas fa-chart-line"></i> 全部航点</div>
-        <div class="cat-nav" data-cat="tech"><i class="fas fa-microchip"></i> 技术星云</div>
-        <div class="cat-nav" data-cat="blog"><i class="fas fa-pen-ruler"></i> 思想驿站</div>
-        <div class="cat-nav" data-cat="design"><i class="fas fa-palette"></i> 美学构筑</div>
-        <div class="cat-nav" data-cat="life"><i class="fas fa-feather"></i> 生活余音</div>
-        <div class="cat-nav" data-cat="tool"><i class="fas fa-cubes"></i> 工具舱</div>
+        <div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部航点</div>
     </div>
 
-    <!-- 站点网格 (隐藏友链字眼，展示为导航卡) -->
     <div class="sites-grid" id="sitesGrid"></div>
 
     <div class="footer-compass">
-        <span><i class="far fa-star"></i> 个人导航 · 持续校准</span>
-        <span><i class="fas fa-arrow-right"></i> 每一枚航标都是值得驻足的风景</span>
-        <span><i class="fas fa-crown"></i> 极简 · 气度 · 互联万象</span>
+        <span><i class="fas fa-bolt"></i> 链接脉冲 · 动态互联</span>
+        <span><i class="fas fa-hand-sparkles"></i> 每次点击都有光效涟漪</span>
+        <span><i class="fas fa-sync-alt"></i> 实时粒子系统</span>
     </div>
 </div>
 
 <script>
-    // 站点数据 —— 精致导航风格，完全隐藏“友链”词汇，每个站点都是独立推荐
-    const sitesData = [
-        {
-            id: 1,
-            name: "墨客维度",
-            initial: "墨",
-            iconFa: "fas fa-feather",
-            category: "blog",
-            description: "深度技术散文与跨领域思考，十年笔耕不辍，探索数字人文边界。",
-            tags: ["技术写作", "独立精神", "全栈"],
-            url: "https://example.com/moke",
-            visitHint: "常青藤"
-        },
-        {
-            id: 2,
-            name: "夜航船工坊",
-            initial: "夜",
-            iconFa: "fas fa-ship",
-            category: "life",
-            description: "影像诗歌 · 城市漫游，独立出版物与暗房实验。",
-            tags: ["摄影", "Zine", "暗色调"],
-            url: "https://example.com/yehang",
-            visitHint: "灵感频率"
-        },
-        {
-            id: 3,
-            name: "二进制神庙",
-            initial: "二",
-            iconFa: "fas fa-microchip",
-            category: "tech",
-            description: "系统底层、Rust 与操作系统设计，硬核技术布道。",
-            tags: ["Rust", "内核", "高性能"],
-            url: "https://example.com/bintemple",
-            visitHint: "极客圣殿"
-        },
-        {
-            id: 4,
-            name: "林栖谷",
-            initial: "林",
-            iconFa: "fas fa-tree",
-            category: "life",
-            description: "山野手记，器物与自然时序，慢节奏生活实验室。",
-            tags: ["自然", "手作", "疗愈"],
-            url: "https://example.com/linqi",
-            visitHint: "森系频率"
-        },
-        {
-            id: 5,
-            name: "形态语法",
-            initial: "形",
-            iconFa: "fas fa-bezier-curve",
-            category: "design",
-            description: "UI/UX 前沿探索，设计系统与生成艺术。",
-            tags: ["Figma", "动效", "创意编码"],
-            url: "https://example.com/formlang",
-            visitHint: "设计新语"
-        },
-        {
-            id: 6,
-            name: "算法窄门",
-            initial: "算",
-            iconFa: "fas fa-brain",
-            category: "tech",
-            description: "竞赛题解、AI 工程化与面试心法，技术成长灯塔。",
-            tags: ["算法", "机器学习", "工程"],
-            url: "https://example.com/algo",
-            visitHint: "高能输出"
-        },
-        {
-            id: 7,
-            name: "虚构图书馆",
-            initial: "虚",
-            iconFa: "fas fa-book",
-            category: "blog",
-            description: "每月书评，科幻与哲学，建造思维的异托邦。",
-            tags: ["书评", "播客", "文化批评"],
-            url: "https://example.com/lib",
-            visitHint: "思想矿脉"
-        },
-        {
-            id: 8,
-            name: "光栅幻景",
-            initial: "光",
-            iconFa: "fas fa-paintbrush-fine",
-            category: "design",
-            description: "数字插画，3D 概念与独立游戏美术。",
-            tags: ["Blender", "概念设计", "像素艺术"],
-            url: "https://example.com/raster",
-            visitHint: "视觉诗"
-        },
-        {
-            id: 9,
-            name: "低语信号",
-            initial: "低",
-            iconFa: "fas fa-podcast",
-            category: "life",
-            description: "独立播客，声音纪实与散漫对话。",
-            tags: ["播客", "声音", "聊天"],
-            url: "https://example.com/whisper",
-            visitHint: "耳畔星云"
-        },
-        {
-            id: 10,
-            name: "前端星图",
-            initial: "前",
-            iconFa: "fab fa-js",
-            category: "tech",
-            description: "现代前端工程，组件库与交互精粹。",
-            tags: ["React", "Vue", "工具链"],
-            url: "https://example.com/fechart",
-            visitHint: "前沿热力"
-        },
-        {
-            id: 11,
-            name: "慢代码工坊",
-            initial: "慢",
-            iconFa: "fas fa-cogs",
-            category: "tech",
-            description: "重构艺术，代码可读性与领域设计。",
-            tags: ["重构", "DDD", "Python"],
-            url: "https://example.com/slowcode",
-            visitHint: "工匠精神"
-        },
-        {
-            id: 12,
-            name: "诗与数轴",
-            initial: "诗",
-            iconFa: "fas fa-square-root-alt",
-            category: "blog",
-            description: "数学与诗歌的交汇，理性与浪漫共舞。",
-            tags: ["数学", "文学", "跨界"],
-            url: "https://example.com/poemath",
-            visitHint: "异质之美"
-        },
-        {
-            id: 13,
-            name: "效率星港",
-            initial: "效",
-            iconFa: "fas fa-rocket",
-            category: "tool",
-            description: "优质生产力工具，工作流自动化与数字花园。",
-            tags: ["工具", "自动化", "Notion"],
-            url: "https://example.com/effi",
-            visitHint: "提效指南"
-        },
-        {
-            id: 14,
-            name: "音频实验室",
-            initial: "音",
-            iconFa: "fas fa-headphones",
-            category: "tool",
-            description: "音乐制作，声音设计插件与资源。",
-            tags: ["Ableton", "合成器", "采样"],
-            url: "https://example.com/audio",
-            visitHint: "声学奇境"
+    // ======================= 1. 粒子背景 (动感canvas) =======================
+    const canvas = document.getElementById('particleCanvas');
+    let ctx = canvas.getContext('2d');
+    let particles = [];
+    let particleCount = 90;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2.2 + 1;
+            this.speedX = (Math.random() - 0.5) * 0.4;
+            this.speedY = (Math.random() - 0.5) * 0.3;
+            this.color = `rgba(59, 130, 246, ${Math.random() * 0.4 + 0.2})`;
         }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0) this.x = canvas.width;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.y < 0) this.y = canvas.height;
+            if (this.y > canvas.height) this.y = 0;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let p of particles) {
+            p.update();
+            p.draw();
+        }
+        // 绘制连接线 (增加科技感)
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 100) {
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - distance / 100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        initParticles();
+    });
+    resizeCanvas();
+    initParticles();
+    animateParticles();
+
+    // ======================= 2. 站点数据 =======================
+    const sitesData = [
+        { id: 1, name: "我的博客", initial: "Blog", iconFa: "fas fa-feather", category: "", description: "个人技术博客，分享前端开发、编程心得与日常思考。", tags: ["", "", ""], url: "https://kevinrzy103874.github.io/", visitHint: "码农家园" },
+        { id: 2, name: "我的论坛", initial: "Discussions", iconFa: "fas fa-ship", category: "", description: "自由交流社区，探讨技术、生活与创意，共建温暖社群。", tags: ["", "", ""], url: "https://kevinrzy103874.freeflarum.com/", visitHint: "灵感频率" },
     ];
 
     let activeCategory = "all";
 
-    // 渲染函数：完全避开“友链”字样，使用导航卡片风格
     function renderSites(category) {
         const grid = document.getElementById("sitesGrid");
-        const filtered = category === "all" ? sitesData : sitesData.filter(site => site.category === category);
-        
-        // 更新总数徽章
-        const totalSpan = document.getElementById("totalBeacons");
-        if (totalSpan) totalSpan.innerText = sitesData.length;
-        
+        const filtered = category === "all" ? sitesData : sitesData.filter(s => s.category === category);
+        document.getElementById("totalBeacons").innerText = sitesData.length;
+
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-guide"><i class="fas fa-map-marked-alt"></i> 此处暂无航标，调整罗盘探索其他星域</div>`;
+            grid.innerHTML = `<div class="empty-guide"><i class="fas fa-satellite"></i> 暂无此航道星标，请切换探索</div>`;
             return;
         }
-        
-        // 分类中文映射
-        const catChinese = {
-            tech: "技术星云", blog: "思想驿站", design: "美学构筑", life: "生活余音", tool: "工具舱"
-        };
-        
-        let cardsHTML = "";
+
+        const catChinese = { tech: "技术星云", blog: "思想驿站", design: "美学构筑", life: "生活余音", tool: "工具舱" };
+        let html = "";
         filtered.forEach(site => {
-            // 优雅展示分类标签
             const categoryLabel = catChinese[site.category] || "灵感站点";
-            // 图标优先使用 iconFa，若没有则用首字母
             const avatarContent = site.iconFa ? `<i class="${site.iconFa}"></i>` : site.initial;
-            
-            cardsHTML += `
+            html += `
                 <div class="nav-card">
                     <div class="card-content">
                         <div class="site-header">
-                            <div class="site-icon">
-                                ${avatarContent}
-                            </div>
+                            <div class="site-icon">${avatarContent}</div>
                             <div class="site-info">
-                                <div class="site-name">
-                                    ${site.name}
-                                    <i class="fas fa-asterisk"></i>
-                                </div>
+                                <div class="site-name">${site.name} <i class="fas fa-external-link-alt"></i></div>
                                 <div class="site-cat"><i class="fas fa-tag"></i> ${categoryLabel}</div>
                             </div>
                         </div>
-                        <div class="site-desc">
-                            ${site.description}
-                        </div>
-                        <div class="site-tags">
-                            ${site.tags.map(tg => `<span class="site-tag">#${tg}</span>`).join('')}
-                        </div>
+                        <div class="site-desc">${site.description}</div>
+                        <div class="site-tags">${site.tags.map(t => `<span class="site-tag">#${t}</span>`).join('')}</div>
                         <div class="action-row">
-                            <a href="${site.url}" target="_blank" rel="noopener noreferrer" class="nav-link">
-                                <i class="fas fa-location-arrow"></i> 启航访问
+                            <a href="${site.url}" target="_blank" rel="noopener noreferrer" class="nav-link" data-ripple>
+                                <i class="fas fa-location-arrow"></i> <span>脉冲跃迁</span>
                             </a>
-                            <div class="meta-info">
-                                <i class="far fa-compass"></i> ${site.visitHint || "航行热点"}
-                            </div>
+                            <div class="meta-info"><i class="fas fa-charging-station"></i> ${site.visitHint}</div>
                         </div>
                     </div>
                 </div>
             `;
         });
-        
-        grid.innerHTML = cardsHTML;
+        grid.innerHTML = html;
+        attachLinkRipple();
     }
-    
-    // 分类栏交互 + 高亮
-    function initNavFilters() {
-        const navItems = document.querySelectorAll(".cat-nav");
-        navItems.forEach(item => {
-            item.addEventListener("click", () => {
-                const cat = item.getAttribute("data-cat");
+
+    // 为所有动态链接添加额外的光效反馈
+    function attachLinkRipple() {
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple-effect');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.backgroundColor = 'rgba(255,255,255,0.6)';
+                ripple.style.width = '0px';
+                ripple.style.height = '0px';
+                ripple.style.left = `${e.offsetX}px`;
+                ripple.style.top = `${e.offsetY}px`;
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.transition = 'width 0.4s, height 0.4s, opacity 0.4s';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.zIndex = '20';
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                setTimeout(() => { ripple.style.width = '180px'; ripple.style.height = '180px'; ripple.style.opacity = '0'; }, 10);
+                setTimeout(() => ripple.remove(), 500);
+            });
+        });
+    }
+
+    function initFilters() {
+        const btns = document.querySelectorAll(".cat-nav");
+        btns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const cat = btn.getAttribute("data-cat");
                 if (!cat) return;
                 activeCategory = cat;
-                navItems.forEach(nav => nav.classList.remove("active"));
-                item.classList.add("active");
+                btns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
                 renderSites(activeCategory);
             });
         });
     }
-    
-    // 页面初始渲染
+
     renderSites("all");
-    initNavFilters();
-    
-    // 添加细微的鼠标跟随光效 (可选高级感)
-    const handleMove = (e) => {
-        const glow = document.querySelector('.glow-sphere');
-        if (glow && window.innerWidth > 768) {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            glow.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    initFilters();
+    attachLinkRipple();
+
+    // 鼠标跟随光晕加强 (高级动感)
+    document.addEventListener('mousemove', (e) => {
+        const glow = document.querySelector('.dynamic-glow');
+        if (glow) {
+            let x = e.clientX / window.innerWidth;
+            let y = e.clientY / window.innerHeight;
+            glow.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(59,130,246,0.25), rgba(0,0,0,0.6) 80%)`;
         }
-    };
-    document.addEventListener('mousemove', handleMove);
-    
-    // 动态标题装饰控制台
-    console.log("%c✦ 航标导航站 | 个人网络索引系统 ✦", "color: #a5f3fc; font-size: 14px; font-weight: bold; background: #0f172a; padding: 4px 12px; border-radius: 20px;");
+    });
 </script>
 </body>
 </html>
