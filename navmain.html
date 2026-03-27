@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>网络导航航标</title>
+    <title>极光航标 | 个人主页 & 友链星图</title>
     <!-- 预连接加速 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 专业图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- 引入 canvas 粒子库 - 轻量动态背景 -->
     <style>
         * {
             margin: 0;
@@ -62,7 +61,6 @@
             margin: 0 auto;
             padding: 1.8rem 2rem 4rem;
             position: relative;
-            backdrop-filter: blur(0px);
         }
 
         /* 头部区域 (科技导航栏) */
@@ -72,7 +70,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1.5rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             padding: 0.8rem 1.5rem;
             background: rgba(10, 20, 40, 0.45);
             backdrop-filter: blur(12px);
@@ -129,14 +127,14 @@
             color: #3b82f6;
         }
 
-        /* 主视觉：动态文字 */
+        /* 主视觉：动态文字 - 个人网站标识 */
         .hero-vision {
             text-align: center;
-            margin: 2rem 0 2.8rem;
+            margin: 1.5rem 0 2rem;
         }
 
         .glitch-text {
-            font-size: 3.2rem;
+            font-size: 3rem;
             font-weight: 800;
             background: linear-gradient(125deg, #fff, #a855f7, #3b82f6);
             -webkit-background-clip: text;
@@ -161,13 +159,45 @@
             letter-spacing: 0.5px;
         }
 
-        /* 分类导航栏 动感悬浮 */
+        /* 个人网站快捷导航区 (个人网站内部链接) */
+        .personal-nav-strip {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.8rem 0 2.5rem;
+        }
+
+        .personal-link {
+            background: rgba(15, 25, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #eef2ff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .personal-link:hover {
+            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -6px #3b82f6;
+            border-color: #c084fc;
+        }
+
+        /* 分类导航栏 */
         .category-rail {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 0.8rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
         }
 
         .cat-nav {
@@ -222,11 +252,11 @@
         /* 网格布局 */
         .sites-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 2rem;
         }
 
-        /* 卡片特效: 流光边框 + 动感悬浮 */
+        /* 卡片特效 */
         .nav-card {
             background: rgba(12, 20, 35, 0.65);
             backdrop-filter: blur(12px);
@@ -238,7 +268,6 @@
             animation: cardFloatIn 0.5s ease-out backwards;
         }
 
-        /* 流光边框动画 (悬停时) */
         .nav-card::after {
             content: '';
             position: absolute;
@@ -277,7 +306,6 @@
             z-index: 2;
         }
 
-        /* 站点头部 */
         .site-header {
             display: flex;
             align-items: center;
@@ -338,10 +366,8 @@
             padding: 0.2rem 0.7rem;
             border-radius: 40px;
             margin-top: 6px;
-            backdrop-filter: blur(2px);
         }
 
-        /* 描述 */
         .site-desc {
             font-size: 0.88rem;
             line-height: 1.45;
@@ -349,7 +375,6 @@
             margin: 0.9rem 0 1rem;
         }
 
-        /* 标签 */
         .site-tags {
             display: flex;
             flex-wrap: wrap;
@@ -364,14 +389,8 @@
             border-radius: 30px;
             font-weight: 500;
             color: #b9c8ff;
-            transition: all 0.2s;
         }
 
-        .nav-card:hover .site-tag {
-            background: rgba(139, 92, 246, 0.4);
-        }
-
-        /* 行动区：链接特效核心 */
         .action-row {
             display: flex;
             align-items: center;
@@ -380,7 +399,6 @@
             padding-top: 1rem;
         }
 
-        /* 极具动感的链接按钮 */
         .nav-link {
             text-decoration: none;
             background: rgba(59, 130, 246, 0.12);
@@ -399,7 +417,6 @@
             cursor: pointer;
         }
 
-        /* 波纹特效 */
         .nav-link::before {
             content: '';
             position: absolute;
@@ -422,13 +439,7 @@
             transition: 0s;
         }
 
-        .nav-link i {
-            position: relative;
-            z-index: 2;
-            transition: transform 0.2s ease;
-        }
-
-        .nav-link span {
+        .nav-link i, .nav-link span {
             position: relative;
             z-index: 2;
         }
@@ -443,24 +454,16 @@
 
         .nav-link:hover i {
             transform: translateX(6px) rotate(-5deg);
-            filter: drop-shadow(0 0 3px white);
         }
 
-        /* 元数据 */
         .meta-info {
             font-size: 0.7rem;
             color: #7c8db0;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s;
         }
 
-        .nav-card:hover .meta-info {
-            color: #b9c8ff;
-        }
-
-        /* 空状态 */
         .empty-guide {
             grid-column: 1 / -1;
             text-align: center;
@@ -470,7 +473,6 @@
             backdrop-filter: blur(8px);
         }
 
-        /* 页脚动态 */
         .footer-compass {
             margin-top: 4rem;
             padding-top: 2rem;
@@ -484,7 +486,6 @@
             flex-wrap: wrap;
         }
 
-        /* 卡片入场动画 */
         @keyframes cardFloatIn {
             from {
                 opacity: 0;
@@ -496,7 +497,6 @@
             }
         }
 
-        /* 响应式 */
         @media (max-width: 720px) {
             .container {
                 padding: 1rem;
@@ -507,6 +507,9 @@
             .nav-header {
                 border-radius: 40px;
                 padding: 0.6rem 1rem;
+            }
+            .sites-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -529,25 +532,30 @@
     </div>
 
     <div class="hero-vision">
-        <div class="glitch-text">✦ 动态导航枢纽 ✦</div>
-        <p><i class="fas fa-bolt"></i> 流光粒子 · 链接脉冲效应 · 即刻启航</p>
+        <div class="glitch-text">✦ 个人星域 · 友链银河 ✦</div>
+        <p><i class="fas fa-bolt"></i> 上方个人网站 | 下方友链分类 | 数据源于 mainnavlist.json</p>
     </div>
 
+    <!-- 个人网站快捷导航区 (从json加载) -->
+    <div class="personal-nav-strip" id="personalNavStrip"></div>
+
+    <!-- 友链分类导航栏 -->
     <div class="category-rail" id="categoryRail">
-        <div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部航点</div>
+        <div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部友链</div>
     </div>
 
+    <!-- 友链卡片网格 -->
     <div class="sites-grid" id="sitesGrid"></div>
 
     <div class="footer-compass">
         <span><i class="fas fa-bolt"></i> 链接脉冲 · 动态互联</span>
-        <span><i class="fas fa-hand-sparkles"></i> 每次点击都有光效涟漪</span>
-        <span><i class="fas fa-sync-alt"></i> 实时粒子系统</span>
+        <span><i class="fas fa-hand-sparkles"></i> 修改 mainnavlist.json 即刻更新</span>
+        <span><i class="fas fa-sync-alt"></i> 粒子星轨</span>
     </div>
 </div>
 
 <script>
-    // ======================= 1. 粒子背景 (动感canvas) =======================
+    // ======================= 粒子背景 (保留原有效果) =======================
     const canvas = document.getElementById('particleCanvas');
     let ctx = canvas.getContext('2d');
     let particles = [];
@@ -597,7 +605,6 @@
             p.update();
             p.draw();
         }
-        // 绘制连接线 (增加科技感)
         ctx.beginPath();
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
@@ -625,46 +632,187 @@
     initParticles();
     animateParticles();
 
-    // ======================= 2. 站点数据 =======================
-    const sitesData = [
-        { id: 1, name: "我的博客", initial: "Blog", iconFa: "fas fa-feather", category: "", description: "个人技术博客，分享前端开发、编程心得与日常思考。", tags: ["", "", ""], url: "https://kevinrzy103874.github.io/", visitHint: "码农家园" },
-        { id: 2, name: "我的论坛", initial: "Discussions", iconFa: "fas fa-ship", category: "", description: "自由交流社区，探讨技术、生活与创意，共建温暖社群。", tags: ["", "", ""], url: "https://kevinrzy103874.freeflarum.com/", visitHint: "灵感频率" },
-    ];
+    // 鼠标跟随光晕
+    document.addEventListener('mousemove', (e) => {
+        const glow = document.querySelector('.dynamic-glow');
+        if (glow) {
+            let x = e.clientX / window.innerWidth;
+            let y = e.clientY / window.innerHeight;
+            glow.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(59,130,246,0.25), rgba(0,0,0,0.6) 80%)`;
+        }
+    });
 
-    let activeCategory = "all";
+    // ======================= 数据模型 & JSON 加载 =======================
+    // 数据结构：
+    // {
+    //   "personalNav": [ { "name": "博客", "url": "https://...", "icon": "fas fa-blog" } ],
+    //   "friendCategories": [
+    //     { "categoryName": "技术社区", "links": [ { "name": "GitHub", "url": "https://...", "desc": "开源世界", "icon": "fab fa-github", "tags": ["开发","协作"] } ] }
+    //   ]
+    // }
+    
+    let appData = {
+        personalNav: [],      // 个人网站链接
+        friendCategories: []  // 友链分类数组
+    };
+    
+    let activeCategory = "all";  // 当前选中的分类名称或 "all"
 
-    function renderSites(category) {
-        const grid = document.getElementById("sitesGrid");
-        const filtered = category === "all" ? sitesData : sitesData.filter(s => s.category === category);
-        document.getElementById("totalBeacons").innerText = sitesData.length;
+    // 从 mainnavlist.json 加载数据，失败则使用内置示例
+    async function loadData() {
+        try {
+            const response = await fetch('./mainnavlist.json');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const json = await response.json();
+            if (json.personalNav && Array.isArray(json.personalNav)) {
+                appData.personalNav = json.personalNav;
+            } else {
+                appData.personalNav = [];
+            }
+            if (json.friendCategories && Array.isArray(json.friendCategories)) {
+                appData.friendCategories = json.friendCategories;
+            } else {
+                appData.friendCategories = [];
+            }
+        } catch (err) {
+            console.warn('未找到 mainnavlist.json，使用默认示例数据。请创建该文件并遵循格式。', err);
+            // 内置示例数据 (包含个人网站和友链)
+            appData.personalNav = [
+                { name: "🏠 首页", url: "https://kevinrzy103874.github.io/", icon: "fas fa-home" },
+                { name: "📝 技术博客", url: "https://kevinrzy103874.github.io/", icon: "fas fa-feather-alt" },
+                { name: "💬 论坛", url: "https://kevinrzy103874.freeflarum.com/", icon: "fas fa-comments" },
+                { name: "✨ 关于我", url: "#", icon: "fas fa-user-astronaut" }
+            ];
+            appData.friendCategories = [
+                {
+                    categoryName: "🚀 开发者星系",
+                    links: [
+                        { name: "GitHub", url: "https://github.com", desc: "全球开源社区，代码的星辰大海", icon: "fab fa-github", tags: ["开源", "协作"] },
+                        { name: "Vercel", url: "https://vercel.com", desc: "极速部署现代应用", icon: "fas fa-cloud-upload-alt", tags: ["部署", "前端"] },
+                        { name: "Stack Overflow", url: "https://stackoverflow.com", desc: "编程问题解答社区", icon: "fab fa-stack-overflow", tags: ["问答", "代码"] }
+                    ]
+                },
+                {
+                    categoryName: "🎨 灵感美学",
+                    links: [
+                        { name: "Dribbble", url: "https://dribbble.com", desc: "全球顶尖设计创意社区", icon: "fab fa-dribbble", tags: ["UI", "灵感"] },
+                        { name: "Awwwards", url: "https://www.awwwards.com", desc: "网页设计颁奖圣地", icon: "fas fa-trophy", tags: ["设计", "创新"] }
+                    ]
+                },
+                {
+                    categoryName: "📡 创作者矩阵",
+                    links: [
+                        { name: "少数派", url: "https://sspai.com", desc: "高效工作与数字生活", icon: "fas fa-microchip", tags: ["效率", "数码"] },
+                        { name: "即刻", url: "https://okjike.com", desc: "年轻人的兴趣社区", icon: "fas fa-bolt", tags: ["社交", "新鲜事"] }
+                    ]
+                }
+            ];
+        }
+        // 确保每个友链都有 tags 字段
+        appData.friendCategories.forEach(cat => {
+            cat.links = cat.links.map(link => ({
+                ...link,
+                tags: link.tags || ["推荐"],
+                icon: link.icon || "fas fa-link"
+            }));
+        });
+        // 如果个人导航为空，给一个默认提示
+        if (appData.personalNav.length === 0) {
+            appData.personalNav = [{ name: "个人站点", url: "#", icon: "fas fa-globe" }];
+        }
+    }
 
+    // 渲染个人网站快捷导航栏
+    function renderPersonalNav() {
+        const container = document.getElementById('personalNavStrip');
+        if (!container) return;
+        if (appData.personalNav.length === 0) {
+            container.innerHTML = '<div style="color:#94a3d8">暂无个人导航链接，请在 mainnavlist.json 中配置 personalNav</div>';
+            return;
+        }
+        const html = appData.personalNav.map(item => `
+            <a href="${escapeHtml(item.url)}" class="personal-link" target="${item.url === '#' ? '_self' : '_blank'}" rel="noopener noreferrer">
+                <i class="${item.icon || 'fas fa-link'}"></i> <span>${escapeHtml(item.name)}</span>
+            </a>
+        `).join('');
+        container.innerHTML = html;
+    }
+
+    // 渲染友链分类导航按钮 (从 friendCategories 动态生成)
+    function renderCategoryFilters() {
+        const rail = document.getElementById('categoryRail');
+        if (!rail) return;
+        let buttons = `<div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部友链</div>`;
+        appData.friendCategories.forEach(cat => {
+            const safeCatName = cat.categoryName;
+            buttons += `<div class="cat-nav" data-cat="${escapeAttr(safeCatName)}"><i class="fas fa-folder-open"></i> ${escapeHtml(safeCatName)}</div>`;
+        });
+        rail.innerHTML = buttons;
+        // 重新绑定事件
+        document.querySelectorAll('.cat-nav').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cat = btn.getAttribute('data-cat');
+                if (!cat) return;
+                activeCategory = cat;
+                document.querySelectorAll('.cat-nav').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderFriendLinks();
+            });
+        });
+    }
+
+    // 渲染友链卡片
+    function renderFriendLinks() {
+        const grid = document.getElementById('sitesGrid');
+        if (!grid) return;
+        
+        let allLinks = [];
+        // 展平所有分类的链接，同时记录所属分类名
+        const flatLinks = [];
+        appData.friendCategories.forEach(cat => {
+            cat.links.forEach(link => {
+                flatLinks.push({
+                    ...link,
+                    categoryName: cat.categoryName
+                });
+            });
+        });
+        
+        let filtered = [];
+        if (activeCategory === 'all') {
+            filtered = flatLinks;
+        } else {
+            filtered = flatLinks.filter(link => link.categoryName === activeCategory);
+        }
+        
+        document.getElementById('totalBeacons').innerText = flatLinks.length;
+        
         if (filtered.length === 0) {
             grid.innerHTML = `<div class="empty-guide"><i class="fas fa-satellite"></i> 暂无此航道星标，请切换探索</div>`;
             return;
         }
-
-        const catChinese = { tech: "技术星云", blog: "思想驿站", design: "美学构筑", life: "生活余音", tool: "工具舱" };
+        
         let html = "";
-        filtered.forEach(site => {
-            const categoryLabel = catChinese[site.category] || "灵感站点";
-            const avatarContent = site.iconFa ? `<i class="${site.iconFa}"></i>` : site.initial;
+        filtered.forEach(link => {
+            const displayIcon = link.icon || "fas fa-link";
+            const tagsHtml = (link.tags || []).map(tag => `<span class="site-tag">#${escapeHtml(tag)}</span>`).join('');
             html += `
                 <div class="nav-card">
                     <div class="card-content">
                         <div class="site-header">
-                            <div class="site-icon">${avatarContent}</div>
+                            <div class="site-icon"><i class="${displayIcon}"></i></div>
                             <div class="site-info">
-                                <div class="site-name">${site.name} <i class="fas fa-external-link-alt"></i></div>
-                                <div class="site-cat"><i class="fas fa-tag"></i> ${categoryLabel}</div>
+                                <div class="site-name">${escapeHtml(link.name)} <i class="fas fa-external-link-alt"></i></div>
+                                <div class="site-cat"><i class="fas fa-tag"></i> ${escapeHtml(link.categoryName)}</div>
                             </div>
                         </div>
-                        <div class="site-desc">${site.description}</div>
-                        <div class="site-tags">${site.tags.map(t => `<span class="site-tag">#${t}</span>`).join('')}</div>
+                        <div class="site-desc">${escapeHtml(link.desc || '探索精彩内容')}</div>
+                        <div class="site-tags">${tagsHtml}</div>
                         <div class="action-row">
-                            <a href="${site.url}" target="_blank" rel="noopener noreferrer" class="nav-link" data-ripple>
+                            <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="nav-link" data-ripple>
                                 <i class="fas fa-location-arrow"></i> <span>脉冲跃迁</span>
                             </a>
-                            <div class="meta-info"><i class="fas fa-charging-station"></i> ${site.visitHint}</div>
+                            <div class="meta-info"><i class="fas fa-charging-station"></i> 即刻访问</div>
                         </div>
                     </div>
                 </div>
@@ -673,8 +821,7 @@
         grid.innerHTML = html;
         attachLinkRipple();
     }
-
-    // 为所有动态链接添加额外的光效反馈
+    
     function attachLinkRipple() {
         document.querySelectorAll('.nav-link').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -699,34 +846,36 @@
             });
         });
     }
-
-    function initFilters() {
-        const btns = document.querySelectorAll(".cat-nav");
-        btns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const cat = btn.getAttribute("data-cat");
-                if (!cat) return;
-                activeCategory = cat;
-                btns.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                renderSites(activeCategory);
-            });
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
         });
     }
-
-    renderSites("all");
-    initFilters();
-    attachLinkRipple();
-
-    // 鼠标跟随光晕加强 (高级动感)
-    document.addEventListener('mousemove', (e) => {
-        const glow = document.querySelector('.dynamic-glow');
-        if (glow) {
-            let x = e.clientX / window.innerWidth;
-            let y = e.clientY / window.innerHeight;
-            glow.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(59,130,246,0.25), rgba(0,0,0,0.6) 80%)`;
-        }
-    });
+    
+    function escapeAttr(str) {
+        if (!str) return '';
+        return str.replace(/[&"']/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '"') return '&quot;';
+            if (m === "'") return '&#39;';
+            return m;
+        });
+    }
+    
+    // 主启动流程
+    async function init() {
+        await loadData();
+        renderPersonalNav();
+        renderCategoryFilters();
+        renderFriendLinks();
+    }
+    
+    init();
 </script>
 </body>
 </html>
