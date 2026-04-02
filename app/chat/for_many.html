@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PeerJS 群聊室 - 点对点多人聊天/文件传输</title>
+    <!-- PeerJS 核心库 -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #121826 0%, #0a0e14 100%);
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .chat-app {
+            width: 100%;
+            max-width: 1300px;
+            height: 90vh;
+            background: #f1f5f9;
+            border-radius: 28px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 左侧边栏：群组与成员 */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(0px);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px 16px;
+            border-bottom: 1px solid #eef2ff;
+            background: #fafcff;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f172a;
+        }
+
+        .room-control {
+            padding: 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .room-control input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .room-control button {
+            width: 100%;
+            background: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .member-list {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .member-list h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin: 12px 0 8px 8px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 40px;
+            margin: 4px 0;
+            background: #f1f5f9;
+            font-size: 0.85rem;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .member-item .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .member-item.self {
+            background: #e0e7ff;
+            font-weight: 500;
+        }
+
+        /* 右侧主聊天区 */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #ffffffdd;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.96);
+            padding: 14px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-name {
+            font-weight: 700;
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+        }
+
+        .my-id-badge {
+            background: #1e293b;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f1f5f9;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .message.own {
+            align-self: flex-end;
+        }
+
+        .message.other {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 10px 16px;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        .message.own .bubble {
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.other .bubble {
+            background: #ffffff;
+            color: #0f172a;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .message-meta {
+            font-size: 0.65rem;
+            margin: 4px 10px 0;
+            display: flex;
+            gap: 10px;
+            color: #64748b;
+        }
+
+        .message.own .message-meta {
+            justify-content: flex-end;
+        }
+
+        .file-preview {
+            margin-top: 8px;
+            border-radius: 16px;
+            max-width: 240px;
+            cursor: pointer;
+        }
+
+        .file-preview img {
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 12px;
+        }
+
+        .file-attach {
+            background: rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 6px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .input-area {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 14px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 60px;
+            padding: 4px 8px 4px 18px;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            outline: none;
+        }
+
+        .input-wrapper button {
+            background: transparent;
+            color: #3b82f6;
+            box-shadow: none;
+            padding: 6px 12px;
+        }
+
+        .file-buttons label {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-left: 5px;
+        }
+
+        button {
+            background: #3b82f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:active { transform: scale(0.97);}
+        .status-online { color: #22c55e; font-size: 0.7rem;}
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .sidebar::-webkit-scrollbar, .messages-area::-webkit-scrollbar { width: 4px; }
+    </style>
+</head>
+<body>
+<div class="chat-app">
+    <!-- 左侧群组面板 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-users"></i> 群聊室</h3>
+            <div class="my-id-badge" style="margin-top: 10px; background:#eef2ff; color:#1e293b;" id="localIdShort">加载中...</div>
+        </div>
+        <div class="room-control">
+            <input type="text" id="roomIdInput" placeholder="房间号 (例如: party2026)" autocomplete="off">
+            <button id="createOrJoinRoomBtn"><i class="fas fa-door-open"></i> 创建/加入房间</button>
+            <button id="leaveRoomBtn" style="background:#64748b;"><i class="fas fa-sign-out-alt"></i> 离开房间</button>
+        </div>
+        <div class="member-list">
+            <h4><i class="fas fa-user-friends"></i> 在线成员 (<span id="memberCount">0</span>)</h4>
+            <div id="membersContainer">
+                <div style="padding: 12px; text-align:center; color:gray;">未加入房间</div>
+            </div>
+        </div>
+        <div style="padding: 16px; font-size:12px; color:#475569; border-top:1px solid #e2e8f0;">
+            <i class="fas fa-info-circle"></i> 群聊基于房间号，所有成员相互直连(P2P)
+        </div>
+    </div>
+
+    <!-- 右侧聊天区域 -->
+    <div class="main-chat">
+        <div class="chat-header">
+            <div class="room-name" id="currentRoomDisplay">🏠 未加入房间</div>
+            <div><i class="fas fa-wifi"></i> <span id="connStatusLabel">未连接群组</span></div>
+        </div>
+        <div class="messages-area" id="messagesContainer">
+            <div class="message other"><div class="bubble">✨ 群聊版PeerJS聊天室<br>1. 输入房间号，点击创建/加入<br>2. 同房间所有成员自动互联<br>3. 支持文字/图片/文件群发</div></div>
+        </div>
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="messageInput" placeholder="群聊消息..." autocomplete="off">
+                <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div class="file-buttons">
+                <label for="groupImageUpload" title="发送图片"><i class="fas fa-image"></i></label>
+                <input type="file" id="groupImageUpload" accept="image/*" style="display:none">
+                <label for="groupFileUpload" title="发送文件"><i class="fas fa-paperclip"></i></label>
+                <input type="file" id="groupFileUpload" style="display:none">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== 群聊核心架构 ========================
+    // 每个Peer都会维护一个房间内的成员映射: Map<peerId, dataConnection>
+    // 通过房间号，加入同一个“信令网络”：通过广播方式将新成员通知所有人，实现网状结构。
+    // 由于PeerJS不支持原生房间，我们自己实现基于“房间协调者”思想：每个成员保存当前房间内所有在线peerId列表，
+    // 当新成员加入时，向房间内所有现存成员发起连接；成员离开时通知所有人。
+    // 为了简化且支持无服务器，采用 “全连接网格” (完全图)，每个客户端都与房间内其他人建立DataConnection。
+    
+    let peer = null;
+    let myId = null;
+    let currentRoom = null;          // 当前房间号
+    let roomMembers = new Map();      // key: peerId, value: dataConnection
+    let memberInfoMap = new Map();    // 存储额外状态（暂时仅id）
+    
+    // DOM
+    const roomIdInput = document.getElementById('roomIdInput');
+    const createJoinBtn = document.getElementById('createOrJoinRoomBtn');
+    const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+    const membersContainer = document.getElementById('membersContainer');
+    const memberCountSpan = document.getElementById('memberCount');
+    const currentRoomDisplay = document.getElementById('currentRoomDisplay');
+    const connStatusLabel = document.getElementById('connStatusLabel');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendMsgBtn = document.getElementById('sendMsgBtn');
+    const groupImageUpload = document.getElementById('groupImageUpload');
+    const groupFileUpload = document.getElementById('groupFileUpload');
+    const localIdShortSpan = document.getElementById('localIdShort');
+    
+    // 辅助: 添加消息到聊天框 (群聊)
+    function addGroupMessage(senderId, text, extra = null, isSystem = false) {
+        const isOwn = (senderId === myId);
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
+        
+        if (!isSystem && !isOwn) {
+            const senderLabel = document.createElement('div');
+            senderLabel.style.fontSize = '0.7rem';
+            senderLabel.style.fontWeight = 'bold';
+            senderLabel.style.opacity = '0.8';
+            senderLabel.style.marginBottom = '4px';
+            senderLabel.innerText = `${senderId.substring(0, 8)}...`;
+            bubbleDiv.appendChild(senderLabel);
+        }
+        
+        if (extra && extra.type === 'image') {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'file-preview';
+            const img = document.createElement('img');
+            img.src = extra.url;
+            img.onclick = () => window.open(extra.url);
+            imgDiv.appendChild(img);
+            bubbleDiv.appendChild(imgDiv);
+            if (text) bubbleDiv.appendChild(document.createTextNode(text));
+        } else if (extra && extra.type === 'file') {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'file-attach';
+            const link = document.createElement('a');
+            link.href = extra.url;
+            link.download = extra.name;
+            link.textContent = `📎 ${extra.name}`;
+            link.target = '_blank';
+            fileDiv.appendChild(link);
+            bubbleDiv.appendChild(fileDiv);
+            if (text) bubbleDiv.appendChild(document.createTextNode(text));
+        } else {
+            bubbleDiv.innerHTML = (text || '').replace(/</g, '&lt;');
+        }
+        
+        messageDiv.appendChild(bubbleDiv);
+        const metaSpan = document.createElement('div');
+        metaSpan.className = 'message-meta';
+        const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        metaSpan.innerHTML = `<span>${isSystem ? '系统' : (isOwn ? '我' : senderId.substring(0,6))}</span><span>${time}</span>`;
+        messageDiv.appendChild(metaSpan);
+        messagesContainer.appendChild(messageDiv);
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    
+    function addSystemMessage(msg) {
+        addGroupMessage('system', msg, null, true);
+    }
+    
+    // 广播消息给房间内所有其他人
+    function broadcastToRoom(data, excludeSelf = true) {
+        for (let [peerId, conn] of roomMembers.entries()) {
+            if (excludeSelf && peerId === myId) continue;
+            if (conn && conn.open) {
+                conn.send(data);
+            } else {
+                // 清理失效连接
+                if (conn && !conn.open) roomMembers.delete(peerId);
+            }
+        }
+        updateMemberListUI();
+    }
+    
+    // 发送文件/图片到群组 (转换成二进制)
+    function sendGroupFile(file, isImage) {
+        if (!currentRoom) { addSystemMessage('尚未加入任何房间'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const arrayBuffer = ev.target.result;
+            const payload = {
+                type: isImage ? 'group_image' : 'group_file',
+                sender: myId,
+                fileName: file.name,
+                mime: file.type,
+                fileData: arrayBuffer,
+                timestamp: Date.now()
+            };
+            broadcastToRoom(payload);
+            // 本地显示
+            const localUrl = URL.createObjectURL(file);
+            addGroupMessage(myId, isImage ? `📷 图片: ${file.name}` : `📁 文件: ${file.name}`, 
+                { type: isImage ? 'image' : 'file', url: localUrl, name: file.name });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    
+    // 发送文本群聊消息
+    function sendGroupText(text) {
+        if (!text.trim()) return;
+        if (!currentRoom) { addSystemMessage('未加入房间，无法发送'); return; }
+        const payload = {
+            type: 'group_text',
+            sender: myId,
+            content: text.trim(),
+            timestamp: Date.now()
+        };
+        broadcastToRoom(payload);
+        addGroupMessage(myId, text.trim(), null);
+        messageInput.value = '';
+    }
+    
+    // 处理接收到的消息（来自某个连接）
+    function handlePeerMessage(peerId, data) {
+        if (!currentRoom) return;
+        if (data && typeof data === 'object') {
+            if (data.type === 'group_text') {
+                if (data.sender !== myId) {
+                    addGroupMessage(data.sender, data.content, null);
+                }
+            } 
+            else if (data.type === 'group_image') {
+                if (data.sender === myId) return;
+                const blob = new Blob([data.fileData], { type: data.mime || 'image/jpeg' });
+                const url = URL.createObjectURL(blob);
+                addGroupMessage(data.sender, `📷 图片: ${data.fileName}`, { type: 'image', url: url });
+            }
+            else if (data.type === 'group_file') {
+                if (data.sender === myId) return;
+                const blob = new Blob([data.fileData], { type: data.mime || 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                addGroupMessage(data.sender, `📎 文件: ${data.fileName}`, { type: 'file', url: url, name: data.fileName });
+            }
+            else if (data.type === 'member_join') {
+                // 新成员广播通知: 当某人加入房间，主动告诉所有人，但为了同步，我们接收到join通知后，如果这个peer还没连接，尝试连接
+                if (data.newMemberId !== myId && !roomMembers.has(data.newMemberId)) {
+                    addSystemMessage(`✨ ${data.newMemberId.substring(0,8)} 加入了房间`);
+                    connectToNewMember(data.newMemberId);
+                }
+            }
+            else if (data.type === 'member_leave') {
+                if (data.leavingId !== myId && roomMembers.has(data.leavingId)) {
+                    const conn = roomMembers.get(data.leavingId);
+                    if (conn) conn.close();
+                    roomMembers.delete(data.leavingId);
+                    addSystemMessage(`👋 ${data.leavingId.substring(0,8)} 离开了房间`);
+                    updateMemberListUI();
+                }
+            }
+            else if (data.type === 'sync_members') {
+                // 同步请求: 发送当前成员列表给对方
+                if (data.requestSync && data.targetId === myId) {
+                    const memberList = Array.from(roomMembers.keys()).concat([myId]);
+                    const syncPayload = { type: 'member_list', list: memberList, sender: myId };
+                    const targetConn = roomMembers.get(peerId);
+                    if (targetConn && targetConn.open) targetConn.send(syncPayload);
+                }
+            }
+            else if (data.type === 'member_list') {
+                // 接收成员列表，对不在列表中的发起连接
+                if (data.list && Array.isArray(data.list)) {
+                    for (let pid of data.list) {
+                        if (pid !== myId && !roomMembers.has(pid)) {
+                            connectToNewMember(pid);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 连接到新成员（发起额外连接）
+    function connectToNewMember(remotePeerId) {
+        if (remotePeerId === myId) return;
+        if (roomMembers.has(remotePeerId)) return;
+        const conn = peer.connect(remotePeerId, { reliable: true });
+        setupDataConnection(conn, remotePeerId);
+    }
+    
+    function setupDataConnection(conn, remoteId) {
+        let isEstablished = false;
+        conn.on('open', () => {
+            if (roomMembers.has(remoteId)) return;
+            roomMembers.set(remoteId, conn);
+            updateMemberListUI();
+            addSystemMessage(`🔗 ${remoteId.substring(0,8)} 已建立连接`);
+            // 发送同步成员请求给对方，以交换成员列表
+            const syncReq = { type: 'sync_members', requestSync: true, targetId: remoteId };
+            conn.send(syncReq);
+            // 再广播本房间现有成员列表（通知对方全部成员）
+            const memberList = Array.from(roomMembers.keys()).concat([myId]);
+            const listPayload = { type: 'member_list', list: memberList, sender: myId };
+            conn.send(listPayload);
+        });
+        conn.on('data', (data) => handlePeerMessage(remoteId, data));
+        conn.on('close', () => {
+            if (roomMembers.has(remoteId)) {
+                roomMembers.delete(remoteId);
+                updateMemberListUI();
+                addSystemMessage(`🔌 与 ${remoteId.substring(0,8)} 断开`);
+            }
+        });
+        conn.on('error', (err) => { console.warn('conn err', err); });
+    }
+    
+    // 离开房间: 广播离开通知，断开所有连接
+    function leaveRoom() {
+        if (!currentRoom) return;
+        const leavePayload = { type: 'member_leave', leavingId: myId };
+        broadcastToRoom(leavePayload, true);
+        // 关闭所有连接
+        for (let [pid, conn] of roomMembers.entries()) {
+            if (conn && conn.open) conn.close();
+        }
+        roomMembers.clear();
+        currentRoom = null;
+        currentRoomDisplay.innerText = '🏠 未加入房间';
+        connStatusLabel.innerText = '未连接群组';
+        updateMemberListUI();
+        addSystemMessage('已离开房间');
+    }
+    
+    function updateMemberListUI() {
+        const allMembers = Array.from(roomMembers.keys());
+        const total = allMembers.length + 1; // 加上自己
+        memberCountSpan.innerText = total;
+        membersContainer.innerHTML = '';
+        // 自己
+        const selfDiv = document.createElement('div');
+        selfDiv.className = 'member-item self';
+        selfDiv.innerHTML = `<span class="status-dot" style="background:#3b82f6;"></span><span><strong>我</strong> (${myId?.substring(0,8)})</span>`;
+        membersContainer.appendChild(selfDiv);
+        for (let pid of allMembers) {
+            const div = document.createElement('div');
+            div.className = 'member-item';
+            div.innerHTML = `<span class="status-dot"></span><span>${pid.substring(0,10)}...</span>`;
+            membersContainer.appendChild(div);
+        }
+        if (allMembers.length === 0 && currentRoom) {
+            const emptyHint = document.createElement('div');
+            emptyHint.style.padding = '8px 12px';
+            emptyHint.style.color = '#64748b';
+            emptyHint.innerText = '暂无其他成员';
+            membersContainer.appendChild(emptyHint);
+        }
+    }
+    
+    // 核心: 加入/创建房间: 生成新房间状态，并尝试与当前房间中的人连接? 这里通过广播告知机制
+    async function joinRoom(roomName) {
+        if (currentRoom === roomName) { addSystemMessage('已经在当前房间'); return; }
+        if (currentRoom) leaveRoom();
+        currentRoom = roomName;
+        currentRoomDisplay.innerText = `🏠 房间: ${roomName}`;
+        connStatusLabel.innerText = `群组 ${roomName} 已激活`;
+        addSystemMessage(`加入/创建房间 "${roomName}"，等待成员连接...`);
+        // 发送成员加入广播: 但是因为当前还没有连接任何人，需要等待别人连入。
+        // 但为了通知可能存在的其他人，我们需要先广播一个"我在这个房间"的消息。
+        // 但是还没人连入怎么发？ 通过监听peer的connection，被动等待其他人连接，并且主动连接逻辑依赖于房间号同步，
+        // 由于没有中心服务器，只能依靠用户分享自己的ID后，对方通过某种方式发起。但群聊增强：当用户加入房间后，会向已知的“房间协调ID”概念？
+        // 优化：PeerJS不具备发现机制，因此我们提供一个外部广播：成员列表同步依赖于主动发起连接的所有人。但为了让房间内已有人能发现新成员，
+        // 新成员需要主动向房间内"已知成员"发起连接。但无法直接获得成员列表。
+        // 升级方案：每个房间第一个用户会等待，第二个用户需要输入第一个用户的ID来建立首次连接? 但不太符合群聊便捷。
+        // 但是题目要求基于PeerJS加群聊，我们可以通过本地存储一个"房间信令辅助"? 不行。更好的：通过分享自己的PeerID加房间号，手动添加?
+        // 这里我们实现一个辅助: 在群聊界面，提供一个“添加好友ID”按钮? 但会破坏体验。
+        // 改进: 让每个用户加入房间时，在页面显示一个“分享房间+自己的ID”链接，但那样用户需手动复制发送。
+        // 为了实现真正自动群组，可以在房间内一旦有一个连接，就同步成员列表。初始时为了加入别人，需要至少一个连接。
+        // 最终解决方案：提供一个“邀请链接”或“输入对方ID”快速添加。为了简便，我们在左侧增加一个“添加成员”区域。
+        // 再优化: 增加一个输入框 “对方Peer ID” 和 “添加至房间” 按钮，帮助手动建立网格。
+        addSystemMessage('💡 提示: 为了群聊互通，请将您的Peer ID分享给好友，好友在本房间号下点击“添加成员”输入您的ID即可互联。');
+        updateMemberListUI();
+    }
+    
+    // 手动向房间添加指定Peer (建立连接)
+    function addPeerToRoom(remoteId) {
+        if (!currentRoom) { addSystemMessage('未加入房间'); return; }
+        if (remoteId === myId) return;
+        if (roomMembers.has(remoteId)) { addSystemMessage('成员已存在'); return; }
+        connectToNewMember(remoteId);
+        addSystemMessage(`尝试连接 ${remoteId.substring(0,8)} ...`);
+    }
+    
+    // UI增加一个简易添加成员输入框
+    function injectMemberAdder() {
+        const container = document.querySelector('.member-list');
+        const adderDiv = document.createElement('div');
+        adderDiv.style.padding = '12px';
+        adderDiv.style.borderTop = '1px solid #e2e8f0';
+        adderDiv.style.marginTop = '8px';
+        adderDiv.innerHTML = `
+            <div style="font-size:12px; margin-bottom:6px;"><i class="fas fa-user-plus"></i> 添加成员(PeerID)</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="addMemberInput" placeholder="对方Peer ID" style="flex:1; padding:6px; border-radius:40px; border:1px solid #cbd5e1;">
+                <button id="addMemberBtn" style="padding:6px 12px; background:#3b82f6;">添加</button>
+            </div>
+        `;
+        container.appendChild(adderDiv);
+        document.getElementById('addMemberBtn')?.addEventListener('click', () => {
+            const pid = document.getElementById('addMemberInput').value.trim();
+            if(pid) addPeerToRoom(pid);
+        });
+    }
+    
+    // 初始化PeerJS
+    function initPeer() {
+        peer = new Peer(undefined, {
+            config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+        });
+        peer.on('open', (id) => {
+            myId = id;
+            localIdShortSpan.innerText = `我的ID: ${id.substring(0,8)}...`;
+            addSystemMessage(`✅ 您的Peer ID: ${id} (可分享给好友)`);
+        });
+        peer.on('connection', (conn) => {
+            // 当有人连接我时，如果属于同一个房间（房间概念需要额外的握手）但是在连接建立时我们可以验证
+            if (!currentRoom) {
+                // 未在房间内，可以拒绝或暂存？为了体验，可建立但通知对方无房间
+                conn.on('open', () => {
+                    conn.send({ type: 'system_msg', content: '对方未在群聊房间内' });
+                    conn.close();
+                });
+                return;
+            }
+            // 建立连接，注册数据处理
+            if (!roomMembers.has(conn.peer)) {
+                setupDataConnection(conn, conn.peer);
+                // 发送当前房间信息给对方
+                conn.on('open', () => {
+                    const joinNotify = { type: 'member_join', newMemberId: myId };
+                    conn.send(joinNotify);
+                });
+            }
+        });
+        peer.on('error', (err) => console.error(err));
+    }
+    
+    // 事件绑定
+    createJoinRoomBtn.addEventListener('click', () => {
+        const room = roomIdInput.value.trim();
+        if (!room) { addSystemMessage('请输入房间号'); return; }
+        joinRoom(room);
+    });
+    leaveRoomBtn.addEventListener('click', () => leaveRoom());
+    sendMsgBtn.addEventListener('click', () => sendGroupText(messageInput.value));
+    messageInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendGroupText(messageInput.value); });
+    groupImageUpload.addEventListener('change', (e) => {
+        if(e.target.files[0]) sendGroupFile(e.target.files[0], true);
+        groupImageUpload.value = '';
+    });
+    groupFileUpload.addEventListener('change', (e) => {
+        if(e.target.files[0]) sendGroupFile(e.target.files[0], false);
+        groupFileUpload.value = '';
+    });
+    
+    initPeer();
+    injectMemberAdder();
+</script>
+</body>
+</html>
