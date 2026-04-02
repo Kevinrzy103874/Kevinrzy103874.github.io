@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PeerJS 聊天室 - 点对点文件/图片即时通讯</title>
+    <!-- PeerJS 核心库 -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- Font Awesome 6 (免费图标库，社交感) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 轻微优化体验，不影响输入 */
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* 聊天容器 - 类似社交软件卡片 */
+        .chat-app {
+            width: 100%;
+            max-width: 1100px;
+            height: 90vh;
+            background: #f8fafc;
+            border-radius: 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(0px);
+            transition: all 0.2s;
+        }
+
+        /* 头部状态栏 */
+        .chat-header {
+            background: #ffffffdd;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.96);
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .peer-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .my-id-card {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: monospace;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .my-id-card i {
+            color: #3b82f6;
+        }
+
+        .connection-panel {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .connection-panel input {
+            padding: 8px 14px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 0.9rem;
+            width: 180px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .connection-panel input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #bfdbfe;
+        }
+
+        button {
+            background: #3b82f6;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .status-badge {
+            background: #e2e8f0;
+            border-radius: 40px;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #334155;
+        }
+
+        .status-badge.online {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* 消息展示区 */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f1f5f9;
+            scroll-behavior: smooth;
+        }
+
+        /* 消息气泡社交风格 */
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .message.own {
+            align-self: flex-end;
+        }
+
+        .message.other {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            word-wrap: break-word;
+            word-break: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .message.own .bubble {
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.other .bubble {
+            background: #ffffff;
+            color: #0f172a;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .meta {
+            font-size: 0.7rem;
+            margin: 4px 10px 0;
+            display: flex;
+            gap: 12px;
+            color: #64748b;
+        }
+
+        .message.own .meta {
+            justify-content: flex-end;
+        }
+
+        /* 文件/图片预览样式 */
+        .file-preview {
+            margin-top: 6px;
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 260px;
+            cursor: pointer;
+        }
+
+        .file-preview img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 14px;
+            display: block;
+            object-fit: cover;
+        }
+
+        .file-attachment {
+            background: rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .message.own .file-attachment {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .download-link {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px dashed currentColor;
+        }
+
+        /* 输入栏 */
+        .input-area {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            background: #f1f5f9;
+            border-radius: 60px;
+            padding: 4px 8px 4px 18px;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .input-wrapper button {
+            background: transparent;
+            color: #3b82f6;
+            box-shadow: none;
+            padding: 8px 12px;
+        }
+
+        .input-wrapper button:hover {
+            background: #e2e8f0;
+            transform: none;
+        }
+
+        .file-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .file-buttons label {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #475569;
+        }
+
+        .file-buttons label:hover {
+            background: #e2e8f0;
+        }
+
+        hr {
+            margin: 4px 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 滚动条美观 */
+        .messages-area::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-app">
+    <div class="chat-header">
+        <div class="peer-info">
+            <div class="my-id-card">
+                <i class="fas fa-id-card"></i>
+                <span id="myPeerId">正在初始化...</span>
+                <button id="copyIdBtn" style="background:#e2e8f0; color:#1e293b; padding:4px 10px; font-size:12px;"><i class="far fa-copy"></i> 复制</button>
+            </div>
+            <div class="status-badge" id="connectionStatus">
+                <i class="fas fa-plug"></i> 未连接
+            </div>
+        </div>
+        <div class="connection-panel">
+            <input type="text" id="remotePeerIdInput" placeholder="输入对方 Peer ID" autocomplete="off">
+            <button id="connectBtn"><i class="fas fa-link"></i> 连接</button>
+            <button id="disconnectBtn" style="background:#64748b;"><i class="fas fa-unlink"></i> 断开</button>
+        </div>
+    </div>
+
+    <div class="messages-area" id="messagesContainer">
+        <div class="message other" style="max-width:90%;">
+            <div class="bubble">✨ 欢迎！复制你的ID发给好友，输入对方ID点击连接。可发送文字、图片、文件 (点对点直连)</div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-wrapper">
+            <input type="text" id="messageInput" placeholder="输入消息..." autocomplete="off">
+            <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="file-buttons">
+            <label for="imageUpload" title="发送图片"><i class="fas fa-image"></i></label>
+            <input type="file" id="imageUpload" accept="image/*" style="display:none">
+            <label for="fileUpload" title="发送文件"><i class="fas fa-paperclip"></i></label>
+            <input type="file" id="fileUpload" style="display:none">
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- PeerJS 核心配置 ----------
+    // 使用公共信令服务器 (PeerJS Cloud) 确保跨网络可用，部署到Github Pages完全没问题
+    const peer = new Peer(undefined, {
+        config: {'iceServers': [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]}
+    });
+
+    let currentConnection = null;       // 当前活动的DataConnection
+    let myPeerId = null;
+
+    // DOM 元素
+    const myPeerIdSpan = document.getElementById('myPeerId');
+    const connectionStatusSpan = document.getElementById('connectionStatus');
+    const remotePeerIdInput = document.getElementById('remotePeerIdInput');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendMsgBtn = document.getElementById('sendMsgBtn');
+    const imageUpload = document.getElementById('imageUpload');
+    const fileUpload = document.getElementById('fileUpload');
+    const copyIdBtn = document.getElementById('copyIdBtn');
+
+    // ---------- 辅助函数：添加消息 (社交样式) ----------
+    function addMessage(text, isOwn, extra = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+        
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
+        
+        // 处理文本内容 + 可能的额外内容 (图片/文件)
+        if (extra && extra.type === 'image') {
+            // 图片展示
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'file-preview';
+            const img = document.createElement('img');
+            img.src = extra.url;
+            img.style.maxWidth = '100%';
+            img.style.cursor = 'pointer';
+            img.onclick = () => window.open(extra.url, '_blank');
+            imgContainer.appendChild(img);
+            bubbleDiv.appendChild(imgContainer);
+            if (text) {
+                const textNode = document.createTextNode(text);
+                bubbleDiv.appendChild(document.createElement('br'));
+                bubbleDiv.appendChild(textNode);
+            }
+        } else if (extra && extra.type === 'file') {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'file-attachment';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-file';
+            const link = document.createElement('a');
+            link.href = extra.url;
+            link.download = extra.name || 'download';
+            link.textContent = `📎 ${extra.name || '文件'}`;
+            link.className = 'download-link';
+            link.target = '_blank';
+            fileDiv.appendChild(icon);
+            fileDiv.appendChild(link);
+            bubbleDiv.appendChild(fileDiv);
+            if (text) {
+                const textNode = document.createTextNode(text);
+                bubbleDiv.appendChild(document.createElement('br'));
+                bubbleDiv.appendChild(textNode);
+            }
+        } else {
+            // 纯文本消息
+            bubbleDiv.innerHTML = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        
+        messageDiv.appendChild(bubbleDiv);
+        
+        const metaSpan = document.createElement('div');
+        metaSpan.className = 'meta';
+        const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        metaSpan.innerHTML = `<span>${isOwn ? '我' : '对方'}</span><span>${time}</span>`;
+        messageDiv.appendChild(metaSpan);
+        
+        messagesContainer.appendChild(messageDiv);
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    // 发送文件/图片的数据 (二进制)
+    function sendFileData(file, isImage = false) {
+        if (!currentConnection || currentConnection.open === false) {
+            addMessage('❌ 未连接到对方，无法发送文件', true);
+            return false;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const arrayBuffer = evt.target.result;
+            const payload = {
+                type: isImage ? 'image' : 'file',
+                name: file.name,
+                mime: file.type,
+                data: arrayBuffer,   // 直接传输ArrayBuffer
+                size: file.size
+            };
+            currentConnection.send(payload);
+            // 本地预览：显示自己发出的文件/图片
+            const objectUrl = URL.createObjectURL(file);
+            if (isImage) {
+                addMessage(`📷 图片: ${file.name}`, true, { type: 'image', url: objectUrl });
+            } else {
+                addMessage(`📁 文件: ${file.name}`, true, { type: 'file', url: objectUrl, name: file.name });
+            }
+            // 注意: 不revoke过早，等页面关闭自动释放；也可以保留一段时间，但无所谓
+        };
+        reader.readAsArrayBuffer(file);
+        return true;
+    }
+
+    // 发送纯文本消息
+    function sendTextMessage(text) {
+        if (!text.trim()) return false;
+        if (!currentConnection || currentConnection.open === false) {
+            addMessage('❌ 未建立连接，无法发送消息', true);
+            return false;
+        }
+        const payload = {
+            type: 'text',
+            content: text.trim()
+        };
+        currentConnection.send(payload);
+        addMessage(text.trim(), true);
+        messageInput.value = '';
+        return true;
+    }
+
+    // 处理接收到的数据
+    function onDataReceived(data) {
+        console.log('收到数据:', data);
+        if (data && typeof data === 'object') {
+            if (data.type === 'text') {
+                addMessage(data.content, false);
+            } 
+            else if (data.type === 'image' || data.type === 'file') {
+                // 重构 Blob 并生成 URL
+                const blob = new Blob([data.data], { type: data.mime || (data.type === 'image' ? 'image/png' : 'application/octet-stream') });
+                const url = URL.createObjectURL(blob);
+                if (data.type === 'image') {
+                    addMessage(`📷 图片: ${data.name || '图片'}`, false, { type: 'image', url: url });
+                } else {
+                    addMessage(`📎 文件: ${data.name || '附件'}`, false, { type: 'file', url: url, name: data.name || '下载文件' });
+                }
+            } 
+            else {
+                addMessage('[未知格式]', false);
+            }
+        } else if (typeof data === 'string') {
+            addMessage(data, false);
+        } else {
+            addMessage('[收到二进制/其他]', false);
+        }
+    }
+
+    // 连接状态更新UI
+    function updateConnectionStatus(connected, remoteId = null) {
+        if (connected && remoteId) {
+            connectionStatusSpan.innerHTML = `<i class="fas fa-circle" style="color:#22c55e; font-size:0.7rem;"></i> 已连接: ${remoteId.substring(0, 8)}...`;
+            connectionStatusSpan.classList.add('online');
+            disconnectBtn.disabled = false;
+            connectBtn.disabled = true;
+            remotePeerIdInput.disabled = true;
+        } else {
+            connectionStatusSpan.innerHTML = `<i class="fas fa-plug"></i> 未连接`;
+            connectionStatusSpan.classList.remove('online');
+            disconnectBtn.disabled = true;
+            connectBtn.disabled = false;
+            remotePeerIdInput.disabled = false;
+            currentConnection = null;
+        }
+    }
+
+    // 建立连接逻辑
+    function connectToPeer(remoteId) {
+        if (!remoteId || remoteId === myPeerId) {
+            addMessage('⚠️ 不能连接自己，请输入对方的Peer ID', true);
+            return false;
+        }
+        if (currentConnection && currentConnection.open) {
+            addMessage('⚠️ 已有连接，请先断开', true);
+            return false;
+        }
+        // 发起连接
+        const conn = peer.connect(remoteId, { reliable: true });
+        setupConnection(conn, remoteId);
+        return true;
+    }
+
+    function setupConnection(conn, remoteIdForLog) {
+        conn.on('open', () => {
+            addMessage(`🔗 与 ${remoteIdForLog} 连接成功！可以开始聊天了`, false);
+            currentConnection = conn;
+            updateConnectionStatus(true, remoteIdForLog);
+            // 监听数据
+            conn.on('data', onDataReceived);
+            conn.on('close', () => {
+                addMessage(`🔌 连接已断开 (${remoteIdForLog})`, false);
+                if (currentConnection === conn) {
+                    currentConnection = null;
+                    updateConnectionStatus(false);
+                }
+            });
+            conn.on('error', (err) => {
+                console.error('连接错误', err);
+                addMessage(`连接错误: ${err.message}`, true);
+                if (currentConnection === conn) {
+                    currentConnection = null;
+                    updateConnectionStatus(false);
+                }
+            });
+        });
+        conn.on('error', (err) => {
+            addMessage(`连接失败: ${err.message}`, true);
+        });
+    }
+
+    // 主动断开
+    function disconnectCurrent() {
+        if (currentConnection) {
+            currentConnection.close();
+            currentConnection = null;
+            updateConnectionStatus(false);
+            addMessage('已主动断开连接', false);
+        } else {
+            addMessage('当前没有活动连接', true);
+        }
+    }
+
+    // 监听远端发来的连接请求 (被动连接)
+    peer.on('connection', (conn) => {
+        if (currentConnection && currentConnection.open) {
+            // 拒绝新连接，提示已有连接
+            conn.close();
+            addMessage(`⚠️ 收到${conn.peer}的连接请求，但已有连接，已拒绝`, false);
+            return;
+        }
+        addMessage(`📞 对方 ${conn.peer} 正在请求连接...`, false);
+        setupConnection(conn, conn.peer);
+        // 手动设置open后自动触发更新
+        if (conn.open) {
+            // 如果已经open, 触发手动更新
+            if (!currentConnection) {
+                currentConnection = conn;
+                updateConnectionStatus(true, conn.peer);
+                conn.on('data', onDataReceived);
+            }
+        } else {
+            conn.on('open', () => {
+                if (!currentConnection) {
+                    currentConnection = conn;
+                    updateConnectionStatus(true, conn.peer);
+                    conn.on('data', onDataReceived);
+                }
+            });
+        }
+    });
+
+    // Peer 自身ID 生成后
+    peer.on('open', (id) => {
+        myPeerId = id;
+        myPeerIdSpan.innerText = id;
+        addMessage(`✅ 你的ID: ${id}  复制并分享给对方即可建立连接`, false);
+        // 可选自动存localStorage
+    });
+
+    peer.on('error', (err) => {
+        console.error('PeerJS错误', err);
+        if (err.type === 'unavailable-id' || err.type === 'peer-unavailable') {
+            addMessage(`⚠️ Peer错误: ${err.message}`, true);
+        } else {
+            addMessage(`⚠️ 连接服务器错误，请刷新页面重试`, true);
+        }
+    });
+
+    // ---------- UI 事件绑定 ----------
+    connectBtn.addEventListener('click', () => {
+        let remoteId = remotePeerIdInput.value.trim();
+        if (!remoteId) {
+            addMessage('请输入对方的 Peer ID', true);
+            return;
+        }
+        connectToPeer(remoteId);
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+        disconnectCurrent();
+    });
+
+    sendMsgBtn.addEventListener('click', () => {
+        sendTextMessage(messageInput.value);
+    });
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendTextMessage(messageInput.value);
+        }
+    });
+
+    // 图片发送
+    imageUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 50 * 1024 * 1024) {
+                addMessage('⚠️ 图片过大 (>50MB) 不建议，可能失败', true);
+            }
+            sendFileData(file, true);
+            imageUpload.value = ''; // 允许重复上传同一文件
+        }
+    });
+
+    // 文件发送
+    fileUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 100 * 1024 * 1024) {
+                addMessage('⚠️ 文件过大(>100MB) 可能导致传输失败', true);
+            }
+            sendFileData(file, false);
+            fileUpload.value = '';
+        }
+    });
+
+    // 复制ID
+    copyIdBtn.addEventListener('click', () => {
+        if (myPeerId) {
+            navigator.clipboard.writeText(myPeerId).then(() => {
+                addMessage('✅ 已复制自己的Peer ID', false);
+            }).catch(() => {
+                addMessage('❌ 复制失败，手动复制', true);
+            });
+        } else {
+            addMessage('等待ID生成，稍后再试', true);
+        }
+    });
+
+    // 页面关闭前清理连接
+    window.addEventListener('beforeunload', () => {
+        if (currentConnection) {
+            currentConnection.close();
+        }
+        peer.destroy();
+    });
+    
+    // 额外提醒：加载完成后自动聚焦
+    window.onload = () => {
+        messageInput.focus();
+        // 解决移动端键盘遮挡
+        if (window.innerWidth <= 768) {
+            messagesContainer.style.paddingBottom = '60px';
+        }
+    };
+</script>
+</body>
+</html>
