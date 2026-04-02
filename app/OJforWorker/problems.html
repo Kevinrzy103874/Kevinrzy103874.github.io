@@ -1,115 +1,115 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>题目列表 | 任我行信息学</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1e293b; }
-        .navbar { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); padding: 1rem 2rem; position: sticky; top: 0; }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .logo { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #1e3c72, #2b4c7c); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .nav-links { display: flex; gap: 1.8rem; flex-wrap: wrap; }
-        .nav-links a { text-decoration: none; color: #4b5563; font-weight: 500; }
-        .nav-links a:hover, .nav-links a.active { color: #2563eb; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-        .page-header { margin-bottom: 2rem; }
-        .page-header h1 { font-size: 2rem; color: #1e293b; }
-        .filter-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .filter-btn { background: white; border: 1px solid #e2e8f0; padding: 0.5rem 1.2rem; border-radius: 40px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
-        .filter-btn.active, .filter-btn:hover { background: #2563eb; color: white; border-color: #2563eb; }
-        .problems-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
-        .problem-card { background: white; border-radius: 1rem; padding: 1.2rem; border: 1px solid #eef2ff; transition: all 0.2s; text-decoration: none; display: block; color: inherit; cursor: pointer; }
-        .problem-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -12px rgba(0,0,0,0.1); border-color: #cbdff2; }
-        .card-header { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
-        .problem-id { font-size: 0.75rem; background: #eef2ff; padding: 0.2rem 0.6rem; border-radius: 20px; color: #2563eb; }
-        .difficulty { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; }
-        .difficulty.easy { background: #dcfce7; color: #15803d; }
-        .difficulty.medium { background: #fff3e3; color: #b45309; }
-        .difficulty.hard { background: #ffe4e2; color: #b91c1c; }
-        .problem-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .problem-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; }
-        .tag { background: #f8fafc; font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 12px; color: #2c3e66; }
-        .footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; color: #6c86a3; font-size: 0.8rem; }
-        @media (max-width: 768px) { .nav-container { flex-direction: column; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题目列表 | 任我行信息学</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1e293b; }
+.navbar { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); padding: 1rem 2rem; position: sticky; top: 0; }
+.nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.logo { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #1e3c72, #2b4c7c); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.nav-links { display: flex; gap: 1.8rem; flex-wrap: wrap; }
+.nav-links a { text-decoration: none; color: #4b5563; font-weight: 500; }
+.nav-links a:hover, .nav-links a.active { color: #2563eb; }
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 2rem; color: #1e293b; }
+.filter-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.filter-btn { background: white; border: 1px solid #e2e8f0; padding: 0.5rem 1.2rem; border-radius: 40px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+.filter-btn.active, .filter-btn:hover { background: #2563eb; color: white; border-color: #2563eb; }
+.problems-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+.problem-card { background: white; border-radius: 1rem; padding: 1.2rem; border: 1px solid #eef2ff; transition: all 0.2s; text-decoration: none; display: block; color: inherit; cursor: pointer; }
+.problem-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -12px rgba(0,0,0,0.1); border-color: #cbdff2; }
+.card-header { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+.problem-id { font-size: 0.75rem; background: #eef2ff; padding: 0.2rem 0.6rem; border-radius: 20px; color: #2563eb; }
+.difficulty { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; }
+.difficulty.easy { background: #dcfce7; color: #15803d; }
+.difficulty.medium { background: #fff3e3; color: #b45309; }
+.difficulty.hard { background: #ffe4e2; color: #b91c1c; }
+.problem-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+.problem-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; }
+.tag { background: #f8fafc; font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 12px; color: #2c3e66; }
+.footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; color: #6c86a3; font-size: 0.8rem; }
+@media (max-width: 768px) { .nav-container { flex-direction: column; } }
+</style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">🏔️ 任我行信息学 · 出题组</div>
-            <div class="nav-links">
-                <a href="/OJforWorker.html">🏠 团队主页</a>
-                <a href="/OJforWorker/problems.html" class="active">📖 题目列表</a>
-                <a href="/OJforWorker/contest.html">🏆 比赛简介</a>
-                <a href="/OJforWorker/announcements.html">📢 公告</a>
-            </div>
-        </div>
-    </nav>
+<nav class="navbar">
+<div class="nav-container">
+<div class="logo">🏔️ 任我行信息学 · 出题组</div>
+<div class="nav-links">
+<a href="/app/OJforWorker.html">🏠 团队主页</a>
+<a href="/app/OJforWorker/problems.html" class="active">📖 题目列表</a>
+<a href="/app/OJforWorker/contest.html">🏆 比赛简介</a>
+<a href="/app/OJforWorker/announcements.html">📢 公告</a>
+</div>
+</div>
+</nav>
 
-    <div class="container">
-        <div class="page-header">
-            <h1>📖 题目列表</h1>
-            <p style="color: #5b6e8c; margin-top: 0.5rem;">任我行信息学原创题库 · 点击卡片查看完整题面</p>
-        </div>
+<div class="container">
+<div class="page-header">
+<h1>📖 题目列表</h1>
+<p style="color: #5b6e8c; margin-top: 0.5rem;">任我行信息学原创题库 · 点击卡片查看完整题面</p>
+</div>
 
-        <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="easy">简单</button>
-            <button class="filter-btn" data-filter="medium">中等</button>
-            <button class="filter-btn" data-filter="hard">困难</button>
-        </div>
+<div class="filter-bar">
+<button class="filter-btn active" data-filter="all">全部</button>
+<button class="filter-btn" data-filter="easy">简单</button>
+<button class="filter-btn" data-filter="medium">中等</button>
+<button class="filter-btn" data-filter="hard">困难</button>
+</div>
 
-        <div class="problems-grid" id="problemsGrid"></div>
-        <div class="footer"><p>© 2025 任我行信息学出题组 | 题目详情页从 problems/ 文件夹读取 Markdown</p></div>
-    </div>
+<div class="problems-grid" id="problemsGrid"></div>
+<div class="footer"><p>© 2025 任我行信息学出题组 | 题目详情页从 problems/ 文件夹读取 Markdown</p></div>
+</div>
 
-    <script>
-        let problemsData = [];
+<script>
+let problemsData = [];
 
-        async function loadProblems() {
-            try {
-                const response = await fetch('/OJforWorker/data/problems.json');
-                const data = await response.json();
-                problemsData = data.problems;
-                renderProblems();
-            } catch (error) {
-                console.error('加载失败:', error);
-                document.getElementById('problemsGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;">加载失败，请检查 data/problems.json</div>';
-            }
-        }
+async function loadProblems() {
+	try {
+		const response = await fetch('/app/OJforWorker/data/problems.json');
+		const data = await response.json();
+		problemsData = data.problems;
+		renderProblems();
+	} catch (error) {
+		console.error('加载失败:', error);
+		document.getElementById('problemsGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;">加载失败，请检查 data/problems.json</div>';
+	}
+}
 
-        function renderProblems(filter = "all") {
-            const filtered = filter === "all" ? problemsData : problemsData.filter(p => p.difficulty === filter);
-            const grid = document.getElementById("problemsGrid");
-            if (filtered.length === 0) {
-                grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:3rem;'>暂无题目</div>";
-                return;
-            }
-            grid.innerHTML = filtered.map(p => `
-                <a href="/OJforWorker/problem.html?id=${p.filename}" class="problem-card">
-                    <div class="card-header">
-                        <span class="problem-id">${p.id}</span>
-                        <span class="difficulty ${p.difficulty}">${p.difficulty_text}</span>
-                    </div>
-                    <div class="problem-title">${p.title}</div>
-                    <div class="problem-tags">${p.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-                    <div style="font-size:0.7rem; color:#6c86a3; margin-top:0.5rem;">${p.status}</div>
-                </a>
-            `).join("");
-        }
+function renderProblems(filter = "all") {
+	const filtered = filter === "all" ? problemsData : problemsData.filter(p => p.difficulty === filter);
+	const grid = document.getElementById("problemsGrid");
+	if (filtered.length === 0) {
+		grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:3rem;'>暂无题目</div>";
+		return;
+	}
+	grid.innerHTML = filtered.map(p => `
+								  <a href="/app/OJforWorker/problem.html?id=${p.filename}" class="problem-card">
+								  <div class="card-header">
+								  <span class="problem-id">${p.id}</span>
+								  <span class="difficulty ${p.difficulty}">${p.difficulty_text}</span>
+								  </div>
+								  <div class="problem-title">${p.title}</div>
+								  <div class="problem-tags">${p.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+								  <div style="font-size:0.7rem; color:#6c86a3; margin-top:0.5rem;">${p.status}</div>
+								  </a>
+								  `).join("");
+}
 
-        document.querySelectorAll(".filter-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                renderProblems(btn.dataset.filter);
-            });
-        });
+document.querySelectorAll(".filter-btn").forEach(btn => {
+	btn.addEventListener("click", () => {
+		document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+		btn.classList.add("active");
+		renderProblems(btn.dataset.filter);
+	});
+});
 
-        loadProblems();
-    </script>
+loadProblems();
+</script>
 </body>
 </html>
