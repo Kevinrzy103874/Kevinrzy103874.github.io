@@ -1,0 +1,17 @@
+[
+    {
+      "title": "个人技术博客",
+      "desc": "记录前端工程化与全栈实践",
+      "url": "https://example.com/blog"
+    },
+    {
+      "title": "摄影画廊",
+      "desc": "街拍·人文·光影瞬间",
+      "url": "https://example.com/gallery"
+    },
+    {
+      "title": "开源仓库",
+      "desc": "GitHub 开源项目与组件库",
+      "url": "https://github.com"
+    }
+  ]
