@@ -2,15 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>极光航标 | 个人主页 & 友链星图</title>
-    <!-- 预连接加速 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 现代字体: Space Grotesk + 科技感 -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 专业图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>个人主页 | 动态极简</title>
+    <!-- 引入 Swiper 轮播图核心样式与JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- 引入 marked.js 用于渲染 Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,477 +16,77 @@
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: #05070f;
-            color: #eef5ff;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+            background: #fafcff;
+            color: #1a2c3e;
+            line-height: 1.5;
+            scroll-behavior: smooth;
         }
 
-        /* Canvas 粒子背景 (全屏动感) */
-        #particleCanvas {
-            position: fixed;
+        /* 横式导航栏 - 细腻玻璃 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            display: block;
-            pointer-events: none;
+            z-index: 100;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.5);
         }
 
-        /* 动态渐变光晕层 */
-        .dynamic-glow {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.15), rgba(0, 0, 0, 0.4) 80%);
-            z-index: -1;
-            pointer-events: none;
-            animation: breatheGlow 8s infinite alternate;
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2.8rem;
+            align-items: center;
         }
 
-        @keyframes breatheGlow {
-            0% { opacity: 0.5; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.02); }
+        .nav-item {
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 48px;
+            color: #2c3f55;
+            letter-spacing: -0.2px;
+        }
+
+        .nav-item:hover {
+            background: #eef2ff;
+            color: #2563eb;
+        }
+
+        .nav-item.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
         }
 
         /* 主容器 */
-        .container {
-            max-width: 1400px;
+        .page-container {
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 1.8rem 2rem 4rem;
-            position: relative;
+            padding: 2rem 2rem 3rem;
         }
 
-        /* 头部区域 (科技导航栏) */
-        .nav-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            padding: 0.8rem 1.5rem;
-            background: rgba(10, 20, 40, 0.45);
-            backdrop-filter: blur(12px);
-            border-radius: 80px;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            transition: all 0.3s;
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeUp 0.35s ease-out;
         }
 
-        .logo-area {
-            display: flex;
-            align-items: baseline;
-            gap: 0.8rem;
+        .page.active-page {
+            display: block;
         }
 
-        .logo-icon {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 8px #3b82f6);
-            animation: iconPulse 2s infinite ease;
-        }
-
-        @keyframes iconPulse {
-            0% { text-shadow: 0 0 0px #3b82f6; }
-            50% { text-shadow: 0 0 10px #3b82f6; }
-            100% { text-shadow: 0 0 0px #3b82f6; }
-        }
-
-        .logo-text {
-            font-weight: 700;
-            font-size: 1.6rem;
-            background: linear-gradient(135deg, #c4e0ff, #8b5cf6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.3px;
-        }
-
-        .stats-pill {
-            display: flex;
-            gap: 1.2rem;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-            padding: 0.4rem 1.4rem;
-            border-radius: 60px;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-        }
-
-        .stats-pill span {
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .stats-pill i {
-            margin-right: 6px;
-            color: #3b82f6;
-        }
-
-        /* 主视觉：动态文字 - 个人网站标识 */
-        .hero-vision {
-            text-align: center;
-            margin: 1.5rem 0 2rem;
-        }
-
-        .glitch-text {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(125deg, #fff, #a855f7, #3b82f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.02em;
-            animation: glitchShift 3s infinite;
-        }
-
-        @keyframes glitchShift {
-            0%, 100% { transform: skew(0deg, 0deg); opacity: 1; text-shadow: 0 0 2px cyan; }
-            95% { transform: skew(0deg, 0deg); opacity: 1; }
-            96% { transform: skew(2deg, 1deg); text-shadow: -2px 0 #ff00c1; }
-            97% { transform: skew(-2deg, -1deg); text-shadow: 2px 0 #00fff9; }
-            98% { transform: skew(0deg, 0deg); }
-        }
-
-        .hero-vision p {
-            font-size: 1rem;
-            color: #94a3d8;
-            margin-top: 0.6rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* 个人网站快捷导航区 (个人网站内部链接) */
-        .personal-nav-strip {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1.8rem 0 2.5rem;
-        }
-
-        .personal-link {
-            background: rgba(15, 25, 45, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            padding: 0.7rem 1.8rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #eef2ff;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .personal-link:hover {
-            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px -6px #3b82f6;
-            border-color: #c084fc;
-        }
-
-        /* 分类导航栏 */
-        .category-rail {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .cat-nav {
-            background: rgba(15, 25, 45, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            padding: 0.6rem 1.6rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #cbd5ff;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            letter-spacing: 0.3px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cat-nav i {
-            margin-right: 8px;
-        }
-
-        .cat-nav::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .cat-nav:hover::before {
-            left: 100%;
-        }
-
-        .cat-nav:hover {
-            transform: translateY(-3px);
-            border-color: #3b82f6;
-            box-shadow: 0 6px 16px -6px #3b82f6;
-            background: rgba(59, 130, 246, 0.2);
-        }
-
-        .cat-nav.active {
-            background: linear-gradient(95deg, #3b82f6, #a855f7);
-            border-color: #ffffff80;
-            color: white;
-            box-shadow: 0 0 15px #3b82f6;
-        }
-
-        /* 网格布局 */
-        .sites-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 2rem;
-        }
-
-        /* 卡片特效 */
-        .nav-card {
-            background: rgba(12, 20, 35, 0.65);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-            position: relative;
-            overflow: hidden;
-            animation: cardFloatIn 0.5s ease-out backwards;
-        }
-
-        .nav-card::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(125deg, #3b82f6, #a855f7, #ec489a, #3b82f6);
-            border-radius: 34px;
-            opacity: 0;
-            z-index: -1;
-            transition: opacity 0.4s ease;
-            background-size: 300% 300%;
-            animation: borderFlow 3s infinite alternate;
-        }
-
-        .nav-card:hover::after {
-            opacity: 0.7;
-        }
-
-        @keyframes borderFlow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        .nav-card:hover {
-            transform: translateY(-8px) scale(1.01);
-            border-color: transparent;
-            box-shadow: 0 25px 35px -12px rgba(59, 130, 246, 0.3);
-            background: rgba(20, 30, 55, 0.85);
-        }
-
-        .card-content {
-            padding: 1.7rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .site-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .site-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(145deg, #1e2a4a, #0f172a);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #60a5fa;
-            box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.4);
-            border: 1px solid #3b82f680;
-            transition: all 0.3s;
-        }
-
-        .nav-card:hover .site-icon {
-            transform: rotate(3deg) scale(1.02);
-            border-color: #a855f7;
-            color: #c084fc;
-        }
-
-        .site-info {
-            flex: 1;
-        }
-
-        .site-name {
-            font-size: 1.35rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .site-name i {
-            font-size: 0.85rem;
-            color: #60a5fa;
-            transition: transform 0.2s;
-        }
-
-        .nav-card:hover .site-name i {
-            transform: translateX(4px);
-        }
-
-        .site-cat {
-            display: inline-block;
-            font-size: 0.65rem;
-            font-weight: 600;
-            background: rgba(59, 130, 246, 0.25);
-            padding: 0.2rem 0.7rem;
-            border-radius: 40px;
-            margin-top: 6px;
-        }
-
-        .site-desc {
-            font-size: 0.88rem;
-            line-height: 1.45;
-            color: #b9c8ff;
-            margin: 0.9rem 0 1rem;
-        }
-
-        .site-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .site-tag {
-            background: rgba(79, 70, 229, 0.2);
-            font-size: 0.7rem;
-            padding: 0.25rem 0.8rem;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #b9c8ff;
-        }
-
-        .action-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid rgba(59, 130, 246, 0.3);
-            padding-top: 1rem;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            background: rgba(59, 130, 246, 0.12);
-            padding: 0.5rem 1.3rem;
-            border-radius: 60px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #eef2ff;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.35s ease;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(59, 130, 246, 0.8));
-            transform: translate(-50%, -50%);
-            transition: width 0.5s, height 0.5s;
-            z-index: 0;
-            opacity: 0;
-        }
-
-        .nav-link:active::before {
-            width: 180px;
-            height: 180px;
-            opacity: 0.5;
-            transition: 0s;
-        }
-
-        .nav-link i, .nav-link span {
-            position: relative;
-            z-index: 2;
-        }
-
-        .nav-link:hover {
-            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
-            border-color: #c084fc;
-            color: white;
-            box-shadow: 0 0 12px #3b82f6;
-            transform: scale(1.02);
-        }
-
-        .nav-link:hover i {
-            transform: translateX(6px) rotate(-5deg);
-        }
-
-        .meta-info {
-            font-size: 0.7rem;
-            color: #7c8db0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .empty-guide {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 48px;
-            backdrop-filter: blur(8px);
-        }
-
-        .footer-compass {
-            margin-top: 4rem;
-            padding-top: 2rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #6c7aa5;
-            border-top: 1px solid rgba(59, 130, 246, 0.3);
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        @keyframes cardFloatIn {
+        @keyframes fadeUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -497,352 +94,484 @@
             }
         }
 
-        @media (max-width: 720px) {
-            .container {
-                padding: 1rem;
+        /* 轮播图区域 */
+        .swiper {
+            width: 100%;
+            height: auto;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2.8rem;
+            background: #eef2ff;
+        }
+
+        .swiper-slide {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 460px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .swiper-slide:hover img {
+            transform: scale(1.02);
+        }
+
+        /* 轮播图描述浮层 */
+        .slide-caption {
+            position: absolute;
+            bottom: 28px;
+            left: 28px;
+            background: rgba(10, 20, 30, 0.7);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 450;
+            letter-spacing: 0.3px;
+            border: 0.5px solid rgba(255,255,255,0.25);
+            max-width: 70%;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        @media (max-width: 700px) {
+            .swiper-slide img {
+                height: 260px;
             }
-            .glitch-text {
-                font-size: 2rem;
+            .slide-caption {
+                font-size: 0.7rem;
+                bottom: 16px;
+                left: 16px;
+                padding: 4px 14px;
             }
-            .nav-header {
-                border-radius: 40px;
-                padding: 0.6rem 1rem;
+            .nav-container {
+                gap: 1.5rem;
             }
-            .sites-grid {
-                grid-template-columns: 1fr;
-            }
+        }
+
+        /* markdown 内容卡片 */
+        .markdown-body {
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 2rem 2rem 1.8rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            margin-bottom: 2.5rem;
+            border: 1px solid #ecf3fa;
+            transition: box-shadow 0.2s;
+        }
+
+        .markdown-body h1, .markdown-body h2 {
+            border-left: 4px solid #2563eb;
+            padding-left: 1rem;
+            margin: 1.4rem 0 0.8rem;
+            font-weight: 600;
+        }
+
+        .markdown-body p {
+            margin-bottom: 1rem;
+            color: #2c3e4e;
+            line-height: 1.65;
+        }
+
+        .markdown-body a {
+            color: #2563eb;
+            text-decoration: none;
+            border-bottom: 1px dashed #a0c0f0;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            margin: 1.8rem 0 1.2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+        }
+
+        .section-title span {
+            background: #eef2ff;
+            padding: 5px 12px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+        }
+
+        /* 链接卡片网格 */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 0.2rem;
+        }
+
+        .link-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 1.3rem 1.6rem;
+            transition: all 0.25s;
+            border: 1px solid #eef2ff;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            border-color: #cbdffc;
+            background: #ffffff;
+            box-shadow: 0 24px 36px -14px rgba(0, 0, 0, 0.12);
+        }
+
+        .link-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0a2540;
+        }
+
+        .link-desc {
+            color: #5b6e8c;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .link-url {
+            font-size: 0.75rem;
+            color: #3b82f6;
+            word-break: break-all;
+            margin-top: 6px;
+            font-family: monospace;
+            opacity: 0.7;
+        }
+
+        .empty-tip {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 2rem;
+            text-align: center;
+            color: #5f7f9e;
+            font-weight: 450;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* toast 反馈 */
+        .toast-message {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.92);
+            background: #1e293b;
+            color: white;
+            padding: 10px 26px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.92);
+            letter-spacing: 0.3px;
+        }
+
+        .toast-message.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 1.8rem;
+            color: #6c86a3;
+            border-top: 1px solid #ecf3fa;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
-<canvas id="particleCanvas"></canvas>
-<div class="dynamic-glow"></div>
-
-<div class="container">
-    <div class="nav-header">
-        <div class="logo-area">
-            <i class="fas fa-satellite-dish logo-icon"></i>
-            <span class="logo-text">极光航标</span>
-        </div>
-        <div class="stats-pill">
-            <span><i class="fas fa-star-of-life"></i> 信标 <span id="totalBeacons">0</span></span>
-            <span><i class="fas fa-wifi"></i> 动态星链</span>
-        </div>
-    </div>
-
-    <div class="hero-vision">
-        <div class="glitch-text">✦ 个人星域 · 友链银河 ✦</div>
-    </div>
-
-    <!-- 个人网站快捷导航区 (从json加载) -->
-    <div class="personal-nav-strip" id="personalNavStrip"></div>
-
-    <!-- 友链分类导航栏 -->
-    <div class="category-rail" id="categoryRail">
-        <div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部友链</div>
-    </div>
-
-    <!-- 友链卡片网格 -->
-    <div class="sites-grid" id="sitesGrid"></div>
-
-    <div class="footer-compass">
+<div class="navbar">
+    <div class="nav-container">
+        <div class="nav-item" data-page="home">🏠 主页</div>
+        <div class="nav-item" data-page="friends">🤝 友链</div>
     </div>
 </div>
 
+<div class="page-container">
+    <!-- 主页内容 -->
+    <div id="home-page" class="page active-page">
+        <!-- 轮播图容器，数据完全由 /data/swip.json 控制（包含图片链接、跳转链接、描述） -->
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper" id="swiper-wrapper"></div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+
+        <!-- 渲染 /data/mainpage.md 内容 -->
+        <div id="markdown-content" class="markdown-body">
+            <div class="empty-tip" style="background:transparent;">✨ 正在加载主页内容...</div>
+        </div>
+
+        <!-- 个人网站链接区域: 从 /data/mypage.json 读取 -->
+        <div class="section-title">
+            <span>⚡</span> 个人·站点
+        </div>
+        <div id="personal-links" class="links-grid">
+            <div class="empty-tip">📡 读取配置中...</div>
+        </div>
+    </div>
+
+    <!-- 友链页面 (独立) -->
+    <div id="friends-page" class="page">
+        <div class="section-title" style="margin-top: 0;">
+            <span>🌿</span> 友情链接
+        </div>
+        <div id="friend-links" class="links-grid">
+            <div class="empty-tip">🔗 加载友链数据...</div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    ✦ 所有数据均来自 /data 目录，轮播图支持点击跳转 ✦
+</footer>
+<div id="toast" class="toast-message"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // ======================= 粒子背景 (保留原有效果) =======================
-    const canvas = document.getElementById('particleCanvas');
-    let ctx = canvas.getContext('2d');
-    let particles = [];
-    let particleCount = 90;
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2.2 + 1;
-            this.speedX = (Math.random() - 0.5) * 0.4;
-            this.speedY = (Math.random() - 0.5) * 0.3;
-            this.color = `rgba(59, 130, 246, ${Math.random() * 0.4 + 0.2})`;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x < 0) this.x = canvas.width;
-            if (this.x > canvas.width) this.x = 0;
-            if (this.y < 0) this.y = canvas.height;
-            if (this.y > canvas.height) this.y = 0;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        }
-    }
-
-    function initParticles() {
-        particles = [];
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
-
-    function animateParticles() {
-        if (!ctx) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let p of particles) {
-            p.update();
-            p.draw();
-        }
-        ctx.beginPath();
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 100) {
-                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - distance / 100)})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
-            }
-        }
-        requestAnimationFrame(animateParticles);
-    }
-
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        initParticles();
-    });
-    resizeCanvas();
-    initParticles();
-    animateParticles();
-
-    // 鼠标跟随光晕
-    document.addEventListener('mousemove', (e) => {
-        const glow = document.querySelector('.dynamic-glow');
-        if (glow) {
-            let x = e.clientX / window.innerWidth;
-            let y = e.clientY / window.innerHeight;
-            glow.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(59,130,246,0.25), rgba(0,0,0,0.6) 80%)`;
-        }
-    });
-
-    // ======================= 数据模型 & JSON 加载 =======================
-    // 数据结构：
-    // {
-    //   "personalNav": [ { "name": "博客", "url": "https://...", "icon": "fas fa-blog" } ],
-    //   "friendCategories": [
-    //     { "categoryName": "技术社区", "links": [ { "name": "GitHub", "url": "https://...", "desc": "开源世界", "icon": "fab fa-github", "tags": ["开发","协作"] } ] }
-    //   ]
-    // }
-    
-    let appData = {
-        personalNav: [],      // 个人网站链接
-        friendCategories: []  // 友链分类数组
+    // --------------------------------------------------------------
+    // 纯动态加载，无任何硬编码默认展示内容（仅占位提示）
+    // 轮播图从 /data/swip.json 读取，支持 img, link, description
+    // --------------------------------------------------------------
+    const showToast = (msg, duration = 2000) => {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
     };
-    
-    let activeCategory = "all";  // 当前选中的分类名称或 "all"
 
-    // 从 mainnavlist.json 加载数据，失败则使用内置示例
-    async function loadData() {
+    // 通用 fetch 封装
+    async function fetchJSON(url, silent = false) {
         try {
-            const response = await fetch('./mainnavlist.json');
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const json = await response.json();
-            if (json.personalNav && Array.isArray(json.personalNav)) {
-                appData.personalNav = json.personalNav;
-            } else {
-                appData.personalNav = [];
-            }
-            if (json.friendCategories && Array.isArray(json.friendCategories)) {
-                appData.friendCategories = json.friendCategories;
-            } else {
-                appData.friendCategories = [];
-            }
+            const res = await fetch(url, { cache: 'no-cache' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
         } catch (err) {
-            console.warn('未找到 mainnavlist.json，使用默认示例数据。请创建该文件并遵循格式。', err);
-            // 内置示例数据 (包含个人网站和友链)
-            appData.personalNav = [
-                { name: "🏠 首页", url: "https://kevinrzy103874.github.io/navmain.html", icon: "fas fa-home" },
-                { name: "📝 技术博客", url: "https://kevinrzy103874.github.io/", icon: "fas fa-feather-alt" },
-                { name: "💬 论坛", url: "https://kevinrzy103874.freeflarum.com/", icon: "fas fa-comments" },
-                { name: "✨ 关于我", url: "#", icon: "fas fa-user-astronaut" }
-            ];
-            appData.friendCategories = [
-                {
-                    categoryName: "🚀 开发者星系",
-                    links: [
-                        { name: "GitHub", url: "https://github.com", desc: "全球开源社区，代码的星辰大海", icon: "fab fa-github", tags: ["开源", "协作"] },
-                        { name: "Vercel", url: "https://vercel.com", desc: "极速部署现代应用", icon: "fas fa-cloud-upload-alt", tags: ["部署", "前端"] },
-                        { name: "Stack Overflow", url: "https://stackoverflow.com", desc: "编程问题解答社区", icon: "fab fa-stack-overflow", tags: ["问答", "代码"] }
-                    ]
-                },
-                {
-                    categoryName: "🎨 灵感美学",
-                    links: [
-                        { name: "Dribbble", url: "https://dribbble.com", desc: "全球顶尖设计创意社区", icon: "fab fa-dribbble", tags: ["UI", "灵感"] },
-                        { name: "Awwwards", url: "https://www.awwwards.com", desc: "网页设计颁奖圣地", icon: "fas fa-trophy", tags: ["设计", "创新"] }
-                    ]
-                },
-                {
-                    categoryName: "📡 创作者矩阵",
-                    links: [
-                        { name: "少数派", url: "https://sspai.com", desc: "高效工作与数字生活", icon: "fas fa-microchip", tags: ["效率", "数码"] },
-                        { name: "即刻", url: "https://okjike.com", desc: "年轻人的兴趣社区", icon: "fas fa-bolt", tags: ["社交", "新鲜事"] }
-                    ]
-                }
-            ];
-        }
-        // 确保每个友链都有 tags 字段
-        appData.friendCategories.forEach(cat => {
-            cat.links = cat.links.map(link => ({
-                ...link,
-                tags: link.tags || ["推荐"],
-                icon: link.icon || "fas fa-link"
-            }));
-        });
-        // 如果个人导航为空，给一个默认提示
-        if (appData.personalNav.length === 0) {
-            appData.personalNav = [{ name: "个人站点", url: "#", icon: "fas fa-globe" }];
+            if (!silent) console.warn(`[fetchJSON] ${url} 加载失败:`, err);
+            return null;
         }
     }
 
-    // 渲染个人网站快捷导航栏
-    function renderPersonalNav() {
-        const container = document.getElementById('personalNavStrip');
-        if (!container) return;
-        if (appData.personalNav.length === 0) {
-            container.innerHTML = '<div style="color:#94a3d8">暂无个人导航链接，请在 mainnavlist.json 中配置 personalNav</div>';
+    async function fetchText(url) {
+        try {
+            const res = await fetch(url, { cache: 'no-cache' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.text();
+        } catch (err) {
+            console.warn(`[fetchText] ${url} 失败:`, err);
+            return null;
+        }
+    }
+
+    let swiperInstance = null;
+
+    // ---------- 轮播图加载 (支持点击跳转) ----------
+    // swip.json 格式: 
+    // [
+    //   {
+    //     "img": "图片URL",
+    //     "link": "点击跳转的URL (可选)",
+    //     "description": "描述文字 (可选)",
+    //     "alt": "替代文本"
+    //   }
+    // ]
+    async function loadCarousel() {
+        const swiperWrapper = document.getElementById('swiper-wrapper');
+        if (!swiperWrapper) return;
+
+        // 显示加载占位
+        swiperWrapper.innerHTML = '<div class="swiper-slide" style="display:flex; align-items:center; justify-content:center; background:#eef2ff; height:400px;">加载轮播图中...</div>';
+        
+        let slidesData = null;
+        try {
+            slidesData = await fetchJSON('/data/swip.json');
+        } catch(e) { /* handled in fetchJSON */ }
+        
+        // 完全依赖外部文件，如果不存在或不是数组，展示空状态并提示
+        if (!slidesData || !Array.isArray(slidesData) || slidesData.length === 0) {
+            swiperWrapper.innerHTML = `<div class="swiper-slide" style="display:flex; align-items:center; justify-content:center; background:#eef2ff; height:400px; flex-direction:column; gap:12px;">
+                <span>📭 未检测到轮播数据</span>
+                <small style="color:#5b6e8c;">请在 /data/swip.json 中配置轮播图 (img, link, description)</small>
+            </div>`;
+            if (swiperInstance) swiperInstance.destroy(true, true);
+            // 即使没有数据也初始化一个空swiper防止报错
+            swiperInstance = new Swiper('.mySwiper', { loop: false, pagination: false, navigation: false });
+            showToast("未找到 /data/swip.json 或数据为空，请添加轮播配置", 2500);
             return;
         }
-        const html = appData.personalNav.map(item => `
-            <a href="${escapeHtml(item.url)}" class="personal-link" target="${item.url === '#' ? '_self' : '_blank'}" rel="noopener noreferrer">
-                <i class="${item.icon || 'fas fa-link'}"></i> <span>${escapeHtml(item.name)}</span>
-            </a>
-        `).join('');
-        container.innerHTML = html;
-    }
 
-    // 渲染友链分类导航按钮 (从 friendCategories 动态生成)
-    function renderCategoryFilters() {
-        const rail = document.getElementById('categoryRail');
-        if (!rail) return;
-        let buttons = `<div class="cat-nav active" data-cat="all"><i class="fas fa-globe"></i> 全部友链</div>`;
-        appData.friendCategories.forEach(cat => {
-            const safeCatName = cat.categoryName;
-            buttons += `<div class="cat-nav" data-cat="${escapeAttr(safeCatName)}"><i class="fas fa-folder-open"></i> ${escapeHtml(safeCatName)}</div>`;
-        });
-        rail.innerHTML = buttons;
-        // 重新绑定事件
-        document.querySelectorAll('.cat-nav').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const cat = btn.getAttribute('data-cat');
-                if (!cat) return;
-                activeCategory = cat;
-                document.querySelectorAll('.cat-nav').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderFriendLinks();
-            });
-        });
-    }
-
-    // 渲染友链卡片
-    function renderFriendLinks() {
-        const grid = document.getElementById('sitesGrid');
-        if (!grid) return;
-        
-        let allLinks = [];
-        // 展平所有分类的链接，同时记录所属分类名
-        const flatLinks = [];
-        appData.friendCategories.forEach(cat => {
-            cat.links.forEach(link => {
-                flatLinks.push({
-                    ...link,
-                    categoryName: cat.categoryName
+        // 渲染幻灯片
+        swiperWrapper.innerHTML = '';
+        slidesData.forEach((item, idx) => {
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            const imgUrl = item.img || '';
+            const altText = item.alt || `carousel-${idx}`;
+            const description = item.description || item.caption || '';
+            const linkUrl = item.link || null;   // 支持跳转链接
+            
+            // 构建内部结构: 图片 + 描述浮层
+            let innerHtml = `<img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(altText)}" loading="lazy" onerror="this.src='https://placehold.co/1200x400/eef2ff/94a3b8?text=Image+Load+Error'">`;
+            if (description && description.trim() !== '') {
+                innerHtml += `<div class="slide-caption">${escapeHtml(description)}</div>`;
+            }
+            slide.innerHTML = innerHtml;
+            
+            // 添加点击跳转功能 (如果存在 link)
+            if (linkUrl && linkUrl.trim() !== '') {
+                slide.style.cursor = 'pointer';
+                slide.addEventListener('click', (e) => {
+                    // 避免冒泡到swiper的导航按钮触发展开
+                    e.stopPropagation();
+                    // 新标签页打开
+                    window.open(linkUrl, '_blank', 'noopener noreferrer');
+                    showToast(`✨ 跳转至: ${item.linkTitle || '链接'}`, 1500);
                 });
-            });
+            } else {
+                slide.style.cursor = 'default';
+            }
+            
+            swiperWrapper.appendChild(slide);
         });
         
-        let filtered = [];
-        if (activeCategory === 'all') {
-            filtered = flatLinks;
-        } else {
-            filtered = flatLinks.filter(link => link.categoryName === activeCategory);
-        }
+        // 初始化或重建 swiper
+        if (swiperInstance) swiperInstance.destroy(true, true);
+        const hasMultiple = slidesData.length > 1;
+        swiperInstance = new Swiper('.mySwiper', {
+            loop: hasMultiple,
+            autoplay: hasMultiple ? { delay: 4500, disableOnInteraction: false } : false,
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+            effect: 'slide',
+            speed: 650,
+        });
         
-        document.getElementById('totalBeacons').innerText = flatLinks.length;
+        showToast(`🖼️ 轮播图已加载 (${slidesData.length}张，支持点击跳转)`, 1800);
+    }
+
+    // ---------- 加载 Markdown: /data/mainpage.md ----------
+    async function loadMarkdown() {
+        const container = document.getElementById('markdown-content');
+        if (!container) return;
+        container.innerHTML = '<div class="empty-tip" style="background:transparent;">📖 正在读取 /data/mainpage.md ...</div>';
         
-        if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-guide"><i class="fas fa-satellite"></i> 暂无此航道星标，请切换探索</div>`;
+        const mdText = await fetchText('/data/mainpage.md');
+        if (!mdText || mdText.trim() === '') {
+            container.innerHTML = `<div class="empty-tip" style="background:#fff5e6;">
+                ⚠️ 未找到 /data/mainpage.md 文件<br/>
+                <small style="display:block; margin-top:10px;">请在 /data 目录下创建 mainpage.md 来展示你的个人介绍</small>
+            </div>`;
+            showToast("未检测到 mainpage.md，请添加内容", 2000);
             return;
         }
         
-        let html = "";
-        filtered.forEach(link => {
-            const displayIcon = link.icon || "fas fa-link";
-            const tagsHtml = (link.tags || []).map(tag => `<span class="site-tag">#${escapeHtml(tag)}</span>`).join('');
-            html += `
-                <div class="nav-card">
-                    <div class="card-content">
-                        <div class="site-header">
-                            <div class="site-icon"><i class="${displayIcon}"></i></div>
-                            <div class="site-info">
-                                <div class="site-name">${escapeHtml(link.name)} <i class="fas fa-external-link-alt"></i></div>
-                                <div class="site-cat"><i class="fas fa-tag"></i> ${escapeHtml(link.categoryName)}</div>
-                            </div>
-                        </div>
-                        <div class="site-desc">${escapeHtml(link.desc || '探索精彩内容')}</div>
-                        <div class="site-tags">${tagsHtml}</div>
-                        <div class="action-row">
-                            <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="nav-link" data-ripple>
-                                <i class="fas fa-location-arrow"></i> <span>脉冲跃迁</span>
-                            </a>
-                            <div class="meta-info"><i class="fas fa-charging-station"></i> 即刻访问</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        grid.innerHTML = html;
-        attachLinkRipple();
+        try {
+            const parsedHtml = marked.parse(mdText);
+            container.innerHTML = parsedHtml;
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = `<div class="empty-tip" style="color:red;">Markdown 解析错误: ${err.message}</div>`;
+        }
     }
-    
-    function attachLinkRipple() {
-        document.querySelectorAll('.nav-link').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                let ripple = document.createElement('span');
-                ripple.classList.add('ripple-effect');
-                ripple.style.position = 'absolute';
-                ripple.style.borderRadius = '50%';
-                ripple.style.backgroundColor = 'rgba(255,255,255,0.6)';
-                ripple.style.width = '0px';
-                ripple.style.height = '0px';
-                ripple.style.left = `${e.offsetX}px`;
-                ripple.style.top = `${e.offsetY}px`;
-                ripple.style.transform = 'translate(-50%, -50%)';
-                ripple.style.transition = 'width 0.4s, height 0.4s, opacity 0.4s';
-                ripple.style.pointerEvents = 'none';
-                ripple.style.zIndex = '20';
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-                setTimeout(() => { ripple.style.width = '180px'; ripple.style.height = '180px'; ripple.style.opacity = '0'; }, 10);
-                setTimeout(() => ripple.remove(), 500);
+
+    // ---------- 个人链接 /data/mypage.json ----------
+    async function loadPersonalLinks() {
+        const container = document.getElementById('personal-links');
+        if (!container) return;
+        container.innerHTML = '<div class="empty-tip">🔗 读取 /data/mypage.json ...</div>';
+        
+        const data = await fetchJSON('/data/mypage.json');
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            container.innerHTML = `<div class="empty-tip">
+                📭 暂无个人站点数据<br/>
+                <small>请在 /data/mypage.json 中配置 (格式: [{ "title": "", "desc": "", "url": "" }])</small>
+            </div>`;
+            return;
+        }
+        
+        renderLinkCards(container, data);
+    }
+
+    // 友链 /data/navformain.json
+    async function loadFriendLinks() {
+        const container = document.getElementById('friend-links');
+        if (!container) return;
+        container.innerHTML = '<div class="empty-tip">🤝 读取 /data/navformain.json ...</div>';
+        
+        const data = await fetchJSON('/data/navformain.json');
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            container.innerHTML = `<div class="empty-tip">
+                🌱 暂无友链数据<br/>
+                <small>请在 /data/navformain.json 中配置友情链接</small>
+            </div>`;
+            return;
+        }
+        
+        renderLinkCards(container, data);
+    }
+
+    // 通用卡片渲染 (带点击反馈)
+    function renderLinkCards(container, items) {
+        if (!items.length) {
+            container.innerHTML = '<div class="empty-tip">暂无链接，请添加数据</div>';
+            return;
+        }
+        container.innerHTML = '';
+        items.forEach(item => {
+            const card = document.createElement('a');
+            card.className = 'link-card';
+            const url = item.url || item.link || '#';
+            card.href = url;
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+            card.addEventListener('click', (e) => {
+                if (!url || url === '#') {
+                    e.preventDefault();
+                    showToast('链接地址无效', 1200);
+                    return;
+                }
+                showToast(`🔗 打开: ${item.title || '站点'}`, 1200);
             });
+            const title = item.title || '未命名';
+            const desc = item.desc || item.description || '暂无描述';
+            const displayUrl = url.length > 55 ? url.substring(0, 52) + '…' : url;
+            card.innerHTML = `
+                <div class="link-title">${escapeHtml(title)}</div>
+                <div class="link-desc">${escapeHtml(desc)}</div>
+                <div class="link-url">${escapeHtml(displayUrl)}</div>
+            `;
+            container.appendChild(card);
         });
     }
-    
+
+    // 基础 XSS 防护
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -852,26 +581,54 @@
             return m;
         });
     }
-    
-    function escapeAttr(str) {
-        if (!str) return '';
-        return str.replace(/[&"']/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '"') return '&quot;';
-            if (m === "'") return '&#39;';
-            return m;
+
+    // ---------- 导航交互 ----------
+    function switchToPage(pageId) {
+        const homeDiv = document.getElementById('home-page');
+        const friendsDiv = document.getElementById('friends-page');
+        if (pageId === 'home') {
+            homeDiv.classList.add('active-page');
+            friendsDiv.classList.remove('active-page');
+            // 修复隐藏后轮播图尺寸异常
+            if (swiperInstance) setTimeout(() => swiperInstance.update(), 80);
+        } else {
+            homeDiv.classList.remove('active-page');
+            friendsDiv.classList.add('active-page');
+        }
+        // 更新导航激活样式
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const val = item.getAttribute('data-page');
+            if ((val === 'home' && pageId === 'home') || (val === 'friends' && pageId === 'friends')) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
         });
+        showToast(pageId === 'home' ? '🏠 回到主页' : '🤝 浏览友链', 1000);
     }
-    
-    // 主启动流程
+
+    function bindNavEvents() {
+        const homeNav = document.querySelector('.nav-item[data-page="home"]');
+        const friendsNav = document.querySelector('.nav-item[data-page="friends"]');
+        if (homeNav) homeNav.addEventListener('click', () => switchToPage('home'));
+        if (friendsNav) friendsNav.addEventListener('click', () => switchToPage('friends'));
+    }
+
+    // ---------- 初始化所有（完全依赖外部数据，无默认业务数据填充）----------
     async function init() {
-        await loadData();
-        renderPersonalNav();
-        renderCategoryFilters();
-        renderFriendLinks();
+        bindNavEvents();
+        // 加载各个模块，互不影响
+        await loadCarousel();       // 轮播图 + 点击跳转
+        await loadMarkdown();       // 主页文字内容
+        await loadPersonalLinks();  // 个人站点
+        await loadFriendLinks();    // 友链区域
+        showToast("✨ 主页已加载，所有数据来自 /data 目录", 2000);
     }
-    
-    init();
+
+    init().catch(err => {
+        console.error("初始化异常:", err);
+        showToast("部分数据加载失败，请确保 /data 下的文件格式正确", 3000);
+    });
 </script>
 </body>
 </html>
