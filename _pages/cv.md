@@ -1,6 +1,6 @@
 ---
 layout: archive
-title: "CV"
+title: "简历&项目作品"
 permalink: /cv/
 author_profile: true
 redirect_from:
