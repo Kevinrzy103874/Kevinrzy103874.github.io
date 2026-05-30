@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PeerJS 聊天室 - 点对点文件/图片即时通讯</title>
+    <title>PeerJS 高级聊天室 - 支持Markdown/桌面通知/超大文件传输</title>
     <!-- PeerJS 核心库 -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <!-- Font Awesome 6 (免费图标库，社交感) -->
+    <!-- Markdown 解析库 (marked) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify 用于安全渲染Markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 轻微优化体验，不影响输入 */
         }
 
         body {
@@ -26,10 +29,9 @@
             padding: 16px;
         }
 
-        /* 聊天容器 - 类似社交软件卡片 */
         .chat-app {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             height: 90vh;
             background: #f8fafc;
             border-radius: 32px;
@@ -37,15 +39,12 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            backdrop-filter: blur(0px);
             transition: all 0.2s;
         }
 
-        /* 头部状态栏 */
         .chat-header {
-            background: #ffffffdd;
-            backdrop-filter: blur(12px);
             background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
             padding: 16px 24px;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
@@ -93,7 +92,7 @@
             border: 1px solid #cbd5e1;
             background: white;
             font-size: 0.9rem;
-            width: 180px;
+            width: 200px;
             outline: none;
             transition: 0.2s;
         }
@@ -145,7 +144,6 @@
             color: #15803d;
         }
 
-        /* 消息展示区 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -157,11 +155,10 @@
             scroll-behavior: smooth;
         }
 
-        /* 消息气泡社交风格 */
         .message {
             display: flex;
             flex-direction: column;
-            max-width: 75%;
+            max-width: 80%;
             animation: fadeInUp 0.2s ease;
         }
 
@@ -174,15 +171,54 @@
         }
 
         .bubble {
-            padding: 10px 14px;
+            padding: 10px 16px;
             border-radius: 24px;
             background: white;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             word-wrap: break-word;
             word-break: break-word;
             font-size: 0.95rem;
-            line-height: 1.4;
-            position: relative;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        /* Markdown 内容样式 */
+        .bubble h1, .bubble h2, .bubble h3 {
+            font-size: 1.1em;
+            margin: 0.5em 0;
+        }
+        .bubble p {
+            margin: 0.3em 0;
+        }
+        .bubble code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 5px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+        .bubble pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 8px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        .bubble a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .bubble a:hover {
+            text-decoration: underline;
+        }
+        .bubble img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+        .bubble ul, .bubble ol {
+            padding-left: 1.5em;
         }
 
         .message.own .bubble {
@@ -190,7 +226,13 @@
             color: white;
             border-bottom-right-radius: 4px;
         }
-
+        .message.own .bubble code {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .message.own .bubble a {
+            color: #facc15;
+        }
         .message.other .bubble {
             background: #ffffff;
             color: #0f172a;
@@ -210,18 +252,17 @@
             justify-content: flex-end;
         }
 
-        /* 文件/图片预览样式 */
         .file-preview {
-            margin-top: 6px;
+            margin-top: 8px;
             border-radius: 16px;
             overflow: hidden;
-            max-width: 260px;
+            max-width: 280px;
             cursor: pointer;
         }
 
         .file-preview img {
             max-width: 100%;
-            max-height: 180px;
+            max-height: 200px;
             border-radius: 14px;
             display: block;
             object-fit: cover;
@@ -249,7 +290,6 @@
             border-bottom: 1px dashed currentColor;
         }
 
-        /* 输入栏 */
         .input-area {
             background: white;
             border-top: 1px solid #e2e8f0;
@@ -263,7 +303,7 @@
         .input-wrapper {
             flex: 1;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: #f1f5f9;
             border-radius: 60px;
             padding: 4px 8px 4px 18px;
@@ -309,8 +349,13 @@
             background: #e2e8f0;
         }
 
-        hr {
-            margin: 4px 0;
+        .markdown-hint {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-left: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         @keyframes fadeInUp {
@@ -324,7 +369,6 @@
             }
         }
 
-        /* 滚动条美观 */
         .messages-area::-webkit-scrollbar {
             width: 5px;
         }
@@ -337,6 +381,37 @@
         .messages-area::-webkit-scrollbar-thumb {
             background: #94a3b8;
             border-radius: 10px;
+        }
+
+        /* 传输进度条（大文件） */
+        .progress-overlay {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: monospace;
+        }
+        .progress-bar-bg {
+            width: 150px;
+            height: 6px;
+            background: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.2s;
         }
     </style>
 </head>
@@ -362,27 +437,38 @@
 
     <div class="messages-area" id="messagesContainer">
         <div class="message other" style="max-width:90%;">
-            <div class="bubble">✨ 欢迎！复制你的ID发给好友，输入对方ID点击连接。可发送文字、图片、文件 (点对点直连)</div>
+            <div class="bubble">
+                ✨ <strong>增强版聊天室</strong><br>
+                ✅ 支持 <strong>Markdown</strong> 格式 (标题、代码块、列表、图片链接等)<br>
+                ✅ 支持 <strong>桌面通知</strong> (需授权，新消息时弹出)<br>
+                ✅ 支持 <strong>100MB+ 超大文件传输</strong> (分块传输，高可靠性)<br>
+                💡 复制你的ID发给好友，输入对方ID连接即可。
+            </div>
         </div>
     </div>
 
     <div class="input-area">
         <div class="input-wrapper">
-            <input type="text" id="messageInput" placeholder="输入消息..." autocomplete="off">
+            <input type="text" id="messageInput" placeholder="支持Markdown: **粗体**、`代码`、[链接](url)..." autocomplete="off">
             <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button>
         </div>
         <div class="file-buttons">
             <label for="imageUpload" title="发送图片"><i class="fas fa-image"></i></label>
             <input type="file" id="imageUpload" accept="image/*" style="display:none">
-            <label for="fileUpload" title="发送文件"><i class="fas fa-paperclip"></i></label>
+            <label for="fileUpload" title="发送文件 (支持大文件)"><i class="fas fa-paperclip"></i></label>
             <input type="file" id="fileUpload" style="display:none">
+        </div>
+        <div class="markdown-hint">
+            <i class="fab fa-markdown"></i> Markdown
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- PeerJS 核心配置 ----------
-    // 使用公共信令服务器 (PeerJS Cloud) 确保跨网络可用，部署到Github Pages完全没问题
+    // ========== 超大文件分块传输配置 ==========
+    const CHUNK_SIZE = 1024 * 1024; // 1MB 每块，保证大文件稳定且不超PeerJS限制（默认数据限制约16MB，分块突破）
+    
+    // 全局Peer
     const peer = new Peer(undefined, {
         config: {'iceServers': [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -390,8 +476,31 @@
         ]}
     });
 
-    let currentConnection = null;       // 当前活动的DataConnection
+    let currentConnection = null;
     let myPeerId = null;
+    
+    // 大文件传输暂存器 (接收端)
+    let receiveBufferMap = new Map(); // key: fileId, value: { chunks: [], totalChunks, fileName, mime, type, receivedCount }
+    
+    // 请求桌面通知权限
+    let notificationPermissionGranted = false;
+    if ("Notification" in window) {
+        if (Notification.permission === "default") {
+            Notification.requestPermission().then(perm => {
+                notificationPermissionGranted = perm === "granted";
+            });
+        } else if (Notification.permission === "granted") {
+            notificationPermissionGranted = true;
+        }
+    }
+    
+    function showDesktopNotification(title, body, tag = 'chat') {
+        if (!notificationPermissionGranted) return;
+        try {
+            const notification = new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png', tag });
+            setTimeout(() => notification.close(), 5000);
+        } catch(e) { console.warn(e); }
+    }
 
     // DOM 元素
     const myPeerIdSpan = document.getElementById('myPeerId');
@@ -406,30 +515,38 @@
     const fileUpload = document.getElementById('fileUpload');
     const copyIdBtn = document.getElementById('copyIdBtn');
 
-    // ---------- 辅助函数：添加消息 (社交样式) ----------
-    function addMessage(text, isOwn, extra = null) {
+    // 辅助: 渲染Markdown (安全)
+    function renderMarkdown(text) {
+        if (!text) return '';
+        try {
+            const rawHtml = marked.parse(text);
+            return DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['target'] });
+        } catch(e) {
+            return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+    }
+    
+    // 添加消息（核心，支持Markdown/文件）
+    function addMessage(text, isOwn, extra = null, senderShort = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
-        
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
         
-        // 处理文本内容 + 可能的额外内容 (图片/文件)
+        // 处理富文本Markdown或文件
         if (extra && extra.type === 'image') {
-            // 图片展示
             const imgContainer = document.createElement('div');
             imgContainer.className = 'file-preview';
             const img = document.createElement('img');
             img.src = extra.url;
             img.style.maxWidth = '100%';
-            img.style.cursor = 'pointer';
             img.onclick = () => window.open(extra.url, '_blank');
             imgContainer.appendChild(img);
             bubbleDiv.appendChild(imgContainer);
             if (text) {
-                const textNode = document.createTextNode(text);
-                bubbleDiv.appendChild(document.createElement('br'));
-                bubbleDiv.appendChild(textNode);
+                const textSpan = document.createElement('div');
+                textSpan.innerHTML = renderMarkdown(text);
+                bubbleDiv.appendChild(textSpan);
             }
         } else if (extra && extra.type === 'file') {
             const fileDiv = document.createElement('div');
@@ -439,73 +556,171 @@
             const link = document.createElement('a');
             link.href = extra.url;
             link.download = extra.name || 'download';
-            link.textContent = `📎 ${extra.name || '文件'}`;
+            link.textContent = `📎 ${extra.name || '文件'} (${extra.size ? (extra.size/1048576).toFixed(2)+'MB' : '?'})`;
             link.className = 'download-link';
             link.target = '_blank';
             fileDiv.appendChild(icon);
             fileDiv.appendChild(link);
             bubbleDiv.appendChild(fileDiv);
             if (text) {
-                const textNode = document.createTextNode(text);
-                bubbleDiv.appendChild(document.createElement('br'));
-                bubbleDiv.appendChild(textNode);
+                const textSpan = document.createElement('div');
+                textSpan.innerHTML = renderMarkdown(text);
+                bubbleDiv.appendChild(textSpan);
             }
         } else {
-            // 纯文本消息
-            bubbleDiv.innerHTML = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // 纯文本 + Markdown渲染
+            bubbleDiv.innerHTML = renderMarkdown(text || '');
         }
         
         messageDiv.appendChild(bubbleDiv);
-        
         const metaSpan = document.createElement('div');
         metaSpan.className = 'meta';
         const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        metaSpan.innerHTML = `<span>${isOwn ? '我' : '对方'}</span><span>${time}</span>`;
+        const senderDisplay = isOwn ? '我' : (senderShort ? senderShort.substring(0,8)+'...' : '对方');
+        metaSpan.innerHTML = `<span>${senderDisplay}</span><span>${time}</span>`;
         messageDiv.appendChild(metaSpan);
         
         messagesContainer.appendChild(messageDiv);
         messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
-
-    // 发送文件/图片的数据 (二进制)
-    function sendFileData(file, isImage = false) {
-        if (!currentConnection || currentConnection.open === false) {
-            addMessage('❌ 未连接到对方，无法发送文件', true);
-            return false;
+        
+        // 桌面通知: 非自己发送的消息，且页面未激活时提示（简单规则：非自身）
+        if (!isOwn && document.hidden) {
+            showDesktopNotification('新消息', text ? (text.length > 50 ? text.slice(0,50)+'...' : text) : '收到文件或图片');
+        } else if (!isOwn && !document.hidden) {
+            // 即使可见也可以轻提示，但为了不打扰，仅做可选，这里简单做一下
+            if (text && text.length < 30) showDesktopNotification('📩 新消息', text);
         }
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const arrayBuffer = evt.target.result;
-            const payload = {
-                type: isImage ? 'image' : 'file',
-                name: file.name,
-                mime: file.type,
-                data: arrayBuffer,   // 直接传输ArrayBuffer
-                size: file.size
-            };
-            currentConnection.send(payload);
-            // 本地预览：显示自己发出的文件/图片
-            const objectUrl = URL.createObjectURL(file);
-            if (isImage) {
-                addMessage(`📷 图片: ${file.name}`, true, { type: 'image', url: objectUrl });
-            } else {
-                addMessage(`📁 文件: ${file.name}`, true, { type: 'file', url: objectUrl, name: file.name });
-            }
-            // 注意: 不revoke过早，等页面关闭自动释放；也可以保留一段时间，但无所谓
-        };
-        reader.readAsArrayBuffer(file);
-        return true;
+    }
+    
+    // 显示进度条UI
+    let progressDiv = null;
+    function showProgress(show, percent = 0, fileName = '') {
+        if (!progressDiv) {
+            progressDiv = document.createElement('div');
+            progressDiv.className = 'progress-overlay';
+            document.body.appendChild(progressDiv);
+        }
+        if (!show) {
+            if (progressDiv) progressDiv.style.display = 'none';
+            return;
+        }
+        progressDiv.style.display = 'flex';
+        progressDiv.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> ${fileName} <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${percent}%"></div></div> ${Math.round(percent)}%`;
     }
 
-    // 发送纯文本消息
+    // 发送大文件 (分块)
+    function sendLargeFile(file, isImage = false) {
+        if (!currentConnection || !currentConnection.open) {
+            addMessage('❌ 未连接对方，无法发送文件', true);
+            return;
+        }
+        const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        let currentChunk = 0;
+        
+        const sendNextChunk = () => {
+            if (currentChunk >= totalChunks) {
+                // 发送完成信号
+                currentConnection.send({
+                    type: 'file_end',
+                    fileId: fileId,
+                    fileName: file.name,
+                    fileSize: file.size,
+                    mime: file.type,
+                    isImage: isImage
+                });
+                showProgress(false);
+                return;
+            }
+            const start = currentChunk * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const arrayBuffer = ev.target.result;
+                currentConnection.send({
+                    type: 'file_chunk',
+                    fileId: fileId,
+                    chunkIndex: currentChunk,
+                    totalChunks: totalChunks,
+                    data: arrayBuffer
+                });
+                currentChunk++;
+                const percent = (currentChunk / totalChunks) * 100;
+                showProgress(true, percent, file.name);
+                sendNextChunk();
+            };
+            reader.readAsArrayBuffer(chunk);
+        };
+        
+        // 发送开始信号
+        currentConnection.send({
+            type: 'file_start',
+            fileId: fileId,
+            fileName: file.name,
+            totalChunks: totalChunks,
+            fileSize: file.size,
+            mime: file.type,
+            isImage: isImage
+        });
+        sendNextChunk();
+        
+        // 本地立即显示预览（占位）
+        const localUrl = URL.createObjectURL(file);
+        if (isImage) {
+            addMessage(`📷 图片: ${file.name} (传输中...)`, true, { type: 'image', url: localUrl });
+        } else {
+            addMessage(`📁 文件: ${file.name} (${(file.size/1048576).toFixed(2)}MB) 传输中...`, true, { type: 'file', url: localUrl, name: file.name, size: file.size });
+        }
+    }
+    
+    // 处理接收分块
+    function handleFileChunk(data) {
+        const { fileId, chunkIndex, totalChunks, data: chunkData } = data;
+        if (!receiveBufferMap.has(fileId)) {
+            receiveBufferMap.set(fileId, {
+                chunks: new Array(totalChunks),
+                totalChunks: totalChunks,
+                fileName: '',
+                mime: '',
+                isImage: false,
+                receivedCount: 0
+            });
+        }
+        const entry = receiveBufferMap.get(fileId);
+        if (!entry.chunks[chunkIndex]) {
+            entry.chunks[chunkIndex] = chunkData;
+            entry.receivedCount++;
+        }
+        // 进度展示
+        const percent = (entry.receivedCount / entry.totalChunks) * 100;
+        showProgress(true, percent, entry.fileName || '接收中');
+        
+        if (entry.receivedCount === entry.totalChunks) {
+            // 所有块收集完毕，组装文件
+            const blob = new Blob(entry.chunks, { type: entry.mime || 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            if (entry.isImage) {
+                addMessage(`📷 图片: ${entry.fileName}`, false, { type: 'image', url: url });
+            } else {
+                addMessage(`📎 文件: ${entry.fileName} (${(blob.size/1048576).toFixed(2)}MB)`, false, { type: 'file', url: url, name: entry.fileName, size: blob.size });
+            }
+            showProgress(false);
+            receiveBufferMap.delete(fileId);
+            // 桌面通知
+            showDesktopNotification('文件接收完成', `已接收: ${entry.fileName}`);
+        }
+    }
+    
+    // 发送普通文本 (Markdown)
     function sendTextMessage(text) {
         if (!text.trim()) return false;
-        if (!currentConnection || currentConnection.open === false) {
+        if (!currentConnection || !currentConnection.open) {
             addMessage('❌ 未建立连接，无法发送消息', true);
             return false;
         }
         const payload = {
-            type: 'text',
+            type: 'text_md',
             content: text.trim()
         };
         currentConnection.send(payload);
@@ -513,38 +728,55 @@
         messageInput.value = '';
         return true;
     }
-
-    // 处理接收到的数据
+    
+    // 接收数据处理
     function onDataReceived(data) {
-        console.log('收到数据:', data);
         if (data && typeof data === 'object') {
-            if (data.type === 'text') {
+            if (data.type === 'text_md') {
                 addMessage(data.content, false);
             } 
+            else if (data.type === 'file_start') {
+                // 准备接收大文件
+                receiveBufferMap.set(data.fileId, {
+                    chunks: new Array(data.totalChunks),
+                    totalChunks: data.totalChunks,
+                    fileName: data.fileName,
+                    mime: data.mime,
+                    isImage: data.isImage,
+                    receivedCount: 0
+                });
+                showProgress(true, 0, data.fileName);
+            }
+            else if (data.type === 'file_chunk') {
+                handleFileChunk(data);
+            }
+            else if (data.type === 'file_end') {
+                // 最终确认（可选，已经由chunk完成处理，避免重复）
+                if (receiveBufferMap.has(data.fileId) && receiveBufferMap.get(data.fileId).receivedCount === receiveBufferMap.get(data.fileId).totalChunks) {
+                    // 已经处理
+                }
+            }
             else if (data.type === 'image' || data.type === 'file') {
-                // 重构 Blob 并生成 URL
-                const blob = new Blob([data.data], { type: data.mime || (data.type === 'image' ? 'image/png' : 'application/octet-stream') });
+                // 兼容旧版小文件直接传输（小于1MB时）
+                const blob = new Blob([data.data], { type: data.mime || 'application/octet-stream' });
                 const url = URL.createObjectURL(blob);
                 if (data.type === 'image') {
                     addMessage(`📷 图片: ${data.name || '图片'}`, false, { type: 'image', url: url });
                 } else {
-                    addMessage(`📎 文件: ${data.name || '附件'}`, false, { type: 'file', url: url, name: data.name || '下载文件' });
+                    addMessage(`📎 文件: ${data.name || '附件'}`, false, { type: 'file', url: url, name: data.name || '文件', size: blob.size });
                 }
-            } 
+            }
             else {
                 addMessage('[未知格式]', false);
             }
         } else if (typeof data === 'string') {
             addMessage(data, false);
-        } else {
-            addMessage('[收到二进制/其他]', false);
         }
     }
-
-    // 连接状态更新UI
+    
     function updateConnectionStatus(connected, remoteId = null) {
         if (connected && remoteId) {
-            connectionStatusSpan.innerHTML = `<i class="fas fa-circle" style="color:#22c55e; font-size:0.7rem;"></i> 已连接: ${remoteId.substring(0, 8)}...`;
+            connectionStatusSpan.innerHTML = `<i class="fas fa-circle" style="color:#22c55e;"></i> 已连接: ${remoteId.substring(0, 8)}...`;
             connectionStatusSpan.classList.add('online');
             disconnectBtn.disabled = false;
             connectBtn.disabled = true;
@@ -555,84 +787,63 @@
             disconnectBtn.disabled = true;
             connectBtn.disabled = false;
             remotePeerIdInput.disabled = false;
-            currentConnection = null;
+            if (currentConnection) {
+                try { currentConnection.close(); } catch(e) {}
+                currentConnection = null;
+            }
         }
     }
-
-    // 建立连接逻辑
+    
     function connectToPeer(remoteId) {
         if (!remoteId || remoteId === myPeerId) {
-            addMessage('⚠️ 不能连接自己，请输入对方的Peer ID', true);
-            return false;
+            addMessage('⚠️ 不能连接自己', true);
+            return;
         }
         if (currentConnection && currentConnection.open) {
-            addMessage('⚠️ 已有连接，请先断开', true);
-            return false;
+            addMessage('⚠️ 已有连接', true);
+            return;
         }
-        // 发起连接
         const conn = peer.connect(remoteId, { reliable: true });
         setupConnection(conn, remoteId);
-        return true;
     }
-
+    
     function setupConnection(conn, remoteIdForLog) {
         conn.on('open', () => {
-            addMessage(`🔗 与 ${remoteIdForLog} 连接成功！可以开始聊天了`, false);
+            addMessage(`🔗 与 ${remoteIdForLog} 连接成功！支持Markdown和大文件`, false);
             currentConnection = conn;
             updateConnectionStatus(true, remoteIdForLog);
-            // 监听数据
             conn.on('data', onDataReceived);
             conn.on('close', () => {
-                addMessage(`🔌 连接已断开 (${remoteIdForLog})`, false);
-                if (currentConnection === conn) {
-                    currentConnection = null;
-                    updateConnectionStatus(false);
-                }
+                addMessage(`🔌 连接已断开`, false);
+                if (currentConnection === conn) currentConnection = null;
+                updateConnectionStatus(false);
             });
-            conn.on('error', (err) => {
-                console.error('连接错误', err);
-                addMessage(`连接错误: ${err.message}`, true);
-                if (currentConnection === conn) {
-                    currentConnection = null;
-                    updateConnectionStatus(false);
-                }
-            });
+            conn.on('error', (err) => addMessage(`连接错误: ${err.message}`, true));
         });
-        conn.on('error', (err) => {
-            addMessage(`连接失败: ${err.message}`, true);
-        });
+        conn.on('error', (err) => addMessage(`连接失败: ${err.message}`, true));
     }
-
-    // 主动断开
+    
     function disconnectCurrent() {
         if (currentConnection) {
             currentConnection.close();
             currentConnection = null;
             updateConnectionStatus(false);
-            addMessage('已主动断开连接', false);
-        } else {
-            addMessage('当前没有活动连接', true);
+            addMessage('已主动断开', false);
         }
     }
-
-    // 监听远端发来的连接请求 (被动连接)
+    
     peer.on('connection', (conn) => {
         if (currentConnection && currentConnection.open) {
-            // 拒绝新连接，提示已有连接
             conn.close();
-            addMessage(`⚠️ 收到${conn.peer}的连接请求，但已有连接，已拒绝`, false);
+            addMessage(`⚠️ 拒绝 ${conn.peer} 连接，已有连接`, false);
             return;
         }
-        addMessage(`📞 对方 ${conn.peer} 正在请求连接...`, false);
+        addMessage(`📞 收到 ${conn.peer} 连接请求`, false);
         setupConnection(conn, conn.peer);
-        // 手动设置open后自动触发更新
-        if (conn.open) {
-            // 如果已经open, 触发手动更新
-            if (!currentConnection) {
-                currentConnection = conn;
-                updateConnectionStatus(true, conn.peer);
-                conn.on('data', onDataReceived);
-            }
+        if (conn.open && !currentConnection) {
+            currentConnection = conn;
+            updateConnectionStatus(true, conn.peer);
+            conn.on('data', onDataReceived);
         } else {
             conn.on('open', () => {
                 if (!currentConnection) {
@@ -643,101 +854,34 @@
             });
         }
     });
-
-    // Peer 自身ID 生成后
+    
     peer.on('open', (id) => {
         myPeerId = id;
         myPeerIdSpan.innerText = id;
-        addMessage(`✅ 你的ID: ${id}  复制并分享给对方即可建立连接`, false);
-        // 可选自动存localStorage
+        addMessage(`✅ 你的ID: ${id}`, false);
     });
-
-    peer.on('error', (err) => {
-        console.error('PeerJS错误', err);
-        if (err.type === 'unavailable-id' || err.type === 'peer-unavailable') {
-            addMessage(`⚠️ Peer错误: ${err.message}`, true);
-        } else {
-            addMessage(`⚠️ 连接服务器错误，请刷新页面重试`, true);
-        }
-    });
-
-    // ---------- UI 事件绑定 ----------
-    connectBtn.addEventListener('click', () => {
-        let remoteId = remotePeerIdInput.value.trim();
-        if (!remoteId) {
-            addMessage('请输入对方的 Peer ID', true);
-            return;
-        }
-        connectToPeer(remoteId);
-    });
-
-    disconnectBtn.addEventListener('click', () => {
-        disconnectCurrent();
-    });
-
-    sendMsgBtn.addEventListener('click', () => {
-        sendTextMessage(messageInput.value);
-    });
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendTextMessage(messageInput.value);
-        }
-    });
-
-    // 图片发送
-    imageUpload.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            if (file.size > 50 * 1024 * 1024) {
-                addMessage('⚠️ 图片过大 (>50MB) 不建议，可能失败', true);
-            }
-            sendFileData(file, true);
-            imageUpload.value = ''; // 允许重复上传同一文件
-        }
-    });
-
-    // 文件发送
-    fileUpload.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            if (file.size > 100 * 1024 * 1024) {
-                addMessage('⚠️ 文件过大(>100MB) 可能导致传输失败', true);
-            }
-            sendFileData(file, false);
-            fileUpload.value = '';
-        }
-    });
-
-    // 复制ID
-    copyIdBtn.addEventListener('click', () => {
-        if (myPeerId) {
-            navigator.clipboard.writeText(myPeerId).then(() => {
-                addMessage('✅ 已复制自己的Peer ID', false);
-            }).catch(() => {
-                addMessage('❌ 复制失败，手动复制', true);
-            });
-        } else {
-            addMessage('等待ID生成，稍后再试', true);
-        }
-    });
-
-    // 页面关闭前清理连接
-    window.addEventListener('beforeunload', () => {
-        if (currentConnection) {
-            currentConnection.close();
-        }
-        peer.destroy();
-    });
+    peer.on('error', (err) => addMessage(`Peer错误: ${err.message}`, true));
     
-    // 额外提醒：加载完成后自动聚焦
-    window.onload = () => {
-        messageInput.focus();
-        // 解决移动端键盘遮挡
-        if (window.innerWidth <= 768) {
-            messagesContainer.style.paddingBottom = '60px';
-        }
-    };
+    // 事件绑定
+    connectBtn.addEventListener('click', () => connectToPeer(remotePeerIdInput.value.trim()));
+    disconnectBtn.addEventListener('click', disconnectCurrent);
+    sendMsgBtn.addEventListener('click', () => sendTextMessage(messageInput.value));
+    messageInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendTextMessage(messageInput.value); });
+    
+    imageUpload.addEventListener('change', (e) => {
+        if(e.target.files[0]) sendLargeFile(e.target.files[0], true);
+        imageUpload.value = '';
+    });
+    fileUpload.addEventListener('change', (e) => {
+        if(e.target.files[0]) sendLargeFile(e.target.files[0], false);
+        fileUpload.value = '';
+    });
+    copyIdBtn.addEventListener('click', () => {
+        if(myPeerId) { navigator.clipboard.writeText(myPeerId); addMessage('✅ 已复制ID', false); }
+        else addMessage('等待ID生成', true);
+    });
+    window.addEventListener('beforeunload', () => { if(currentConnection) currentConnection.close(); peer.destroy(); });
+    window.onload = () => { messageInput.focus(); };
 </script>
 </body>
 </html>
