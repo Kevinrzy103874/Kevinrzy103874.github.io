@@ -1,3 +1,88 @@
 <script type="module" src="{{ base_path }}/assets/js/main.min.js"></script>
 
 {% include analytics.html %}
+
+<script>
+  /**
+   * 汉堡菜单交互脚本
+   * 控制侧边栏的打开/关闭
+   */
+  (function() {
+    // 等待页面加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取元素
+      const hamburger = document.getElementById('hamburger-menu');
+      const overlay = document.getElementById('menu-overlay');
+      
+      // 查找侧边栏 - 尝试多个可能的类名
+      let sidebar = document.querySelector('.sidebar, .page__sidebar');
+      
+      // 如果找不到，再尝试其他选择器
+      if (!sidebar) {
+        sidebar = document.querySelector('[class*="sidebar"]');
+      }
+      
+      // 如果还是找不到，在控制台输出警告
+      if (!sidebar) {
+        console.warn('未找到侧边栏元素，请检查页面结构');
+        return;
+      }
+      
+      if (!hamburger || !overlay) {
+        console.warn('未找到汉堡菜单或遮罩层元素');
+        return;
+      }
+      
+      // 打开菜单
+      function openMenu() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        hamburger.classList.add('active');
+        document.body.style.overflow = 'hidden';  // 禁止背景滚动
+      }
+      
+      // 关闭菜单
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('active');
+        document.body.style.overflow = '';  // 恢复滚动
+      }
+      
+      // 绑定点击事件
+      hamburger.addEventListener('click', openMenu);
+      overlay.addEventListener('click', closeMenu);
+      
+      // 点击侧边栏内的链接后关闭菜单（但不立即关闭，给页面跳转一点时间）
+      sidebar.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          // 如果是锚点链接（页面内跳转），延迟关闭
+          const href = this.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            setTimeout(closeMenu, 300);
+          } else {
+            // 普通链接，立即关闭
+            closeMenu();
+          }
+        });
+      });
+      
+      // 按 ESC 键关闭菜单
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+          closeMenu();
+        }
+      });
+      
+      // 如果窗口大小改变到桌面端，保持菜单关闭状态
+      window.addEventListener('resize', function() {
+        if (sidebar.classList.contains('open')) {
+          // 可以选择在窗口改变时自动关闭菜单
+          // closeMenu();
+        }
+      });
+      
+      console.log('汉堡菜单已初始化！');
+    });
+  })();
+</script>
